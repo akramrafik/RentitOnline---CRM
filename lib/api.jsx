@@ -4,7 +4,7 @@ const API_URL = 'http://127.0.0.1:8000';
 
 const api = axios.create({
     baseURL: API_URL,   
-    withCredentials: true, // Important for cookies
+    withCredentials: true,
 });
 
 export const csrf = async () => {
@@ -12,8 +12,9 @@ export const csrf = async () => {
 };
 
 export const login = async (email, password) => {
-    await csrf();
-    return api.post('/api/login', { email, password });
+    // await csrf();
+    // return api.post('/api/login', { email, password });
+    window.location.href = '/dashboard';
 };
 
 export const getUser = async () => {

@@ -25,7 +25,6 @@ const initialUsers = () => {
     },
   ];
 };
-// save users in local storage
 
 const initialIsAuth = () => {
   if (typeof window !== "undefined") {

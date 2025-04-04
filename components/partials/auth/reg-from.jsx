@@ -7,7 +7,7 @@ import * as yup from "yup";
 import { useRouter } from "next/navigation";
 import Checkbox from "@/components/ui/Checkbox";
 import { useDispatch, useSelector } from "react-redux";
-import { handleRegister } from "./store";
+//import { handleRegister } from "./store";
 
 const schema = yup
   .object({

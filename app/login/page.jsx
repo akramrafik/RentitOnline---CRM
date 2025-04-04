@@ -2,12 +2,9 @@
 import React from "react";
 import Link from "next/link";
 import LoginForm from "@/components/partials/auth/login-form";
-import Social from "@/components/partials/auth/social";
-import useDarkMode from "@/hooks/useDarkMode";
 import dynamic from "next/dynamic";
 
 const Login2 = () => {
-  const [isDark] = useDarkMode();
   return (
     <>
       <div className="loginwrapper">
@@ -18,11 +15,7 @@ const Login2 = () => {
                 <div className="mobile-logo text-center mb-6 lg:hidden block">
                   <Link href="/">
                     <img
-                      src={
-                        isDark
-                          ? "assets/images/logo/logo.png.svg"
-                          : "/assets/images/logo/logo-main.png"
-                      }
+                      src= "/assets/images/logo/logo-main.png"
                       alt=""
                       className="mx-auto"
                     />
