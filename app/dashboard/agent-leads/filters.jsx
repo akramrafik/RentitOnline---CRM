@@ -6,9 +6,6 @@ import Flatpickr from "react-flatpickr";
 
 
 const Filters = () => {
-  const [value, setValue] = useState("");
-  const [value2, setValue2] = useState("");
-
   return (
     <div className="space-y-5">
       <Card>

@@ -4,12 +4,13 @@ import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Textinput from '@/components/ui/Textinput';
 import * as yup from 'yup';
+import { login } from '@/lib/api';
 
 // Define the validation schema using Yup
 const schema = yup.object().shape({
-    email: yup.string().email('Invalid email').required('Email is required'),
+    email: yup.string().email('Enter a valid email').required('Email is required'),
     password: yup.string().required('Password is required'),
-});
+  });
 
 export default function LoginPage() {
     const { signIn, user } = useAuth();
@@ -23,23 +24,29 @@ export default function LoginPage() {
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        setLoading(true); 
+        setError('');
+        setValidationErrors({});
+        setLoading(true);
         try {
+            console.log('email:', email, 'password:', password);
             await schema.validate({ email, password }, { abortEarly: false });
 
             try {
-                await signIn(email, password);
+                await login(email, password);
                 router.push('/dashboard');
             } catch (err) {
-                setError('Invalid email or password');
+                if(err.name == 'ValidationError'){
+                    const newErrors = {};
+                    err.inner.forEach(e=>{
+                        newErrors[e.path] = e.message;
+                    });
+                    setValidationErrors(newErrors);
+                }else if (err.response?.status === 422){
+                    setError('Invalid email or password');
+                }else{
+                    setError('login failed. Please try again later')
+                }
             }
-        } catch (err) {
-            const newValidationErrors = {};
-            err.inner.forEach((error) => {
-                newValidationErrors[error.path] = error.message;
-            });
-            setValidationErrors(newValidationErrors);
         } finally {
             setLoading(false); 
         }
@@ -47,7 +54,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         if (user) {
-            router.push('/dashboard');
+            router.push('/dashboard'); // Redirect to dashboard if user is already authenticated
         }
     }, [user, router]);
 
@@ -65,7 +72,7 @@ export default function LoginPage() {
                     placeholder="Email"
                     className="w-full p-2 border rounded"
                 />
-                {validationErrors.email && <p className="text-red-500 text-sm">{validationErrors.email}</p>}
+                {validationErrors.email && (<p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>)}
             </div>
 
             <div className="mb-4">
@@ -78,7 +85,7 @@ export default function LoginPage() {
                     placeholder="Password"
                     className="w-full p-2 border rounded"
                 />
-                {validationErrors.password && <p className="text-red-500 text-sm">{validationErrors.password}</p>}
+                {validationErrors.password && (<p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>)}
             </div>
 
             <button

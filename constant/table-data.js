@@ -584,7 +584,20 @@ export const rioAgentData = [
   }
 ];
 
-
+export const insightData = [
+  {
+    location: "Abu Dhabi Island",
+    economy_cars: "1",
+    luxuary_cars: "0",
+    sports_cars: "0",
+    electric_cars: "0",
+    limousine: "0",
+    commercial: "4",
+    chauffeur_cars: "0",
+    vendor: "",
+    agent: "Thabsum",
+  },
+];
 export const homeTable = [
   {
     company: "/assets/images/users/user-1.jpg",

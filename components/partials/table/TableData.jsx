@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
@@ -86,18 +86,32 @@ const TableData = ({ title , columns = [], data = [] }) => {
     state: { globalFilter },  // Destructure globalFilter from state
   } = tableInstance;
 
+  
+    const [isVisible, setIsVisible] = useState(false);
+    useEffect(() => {
+      const path = window.location.href.split("/").pop(); // Extract the last part of the URL
+      if (path === "rio-agents") {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    }, []);
   return (
     <Card>
       <div className="md:flex justify-between items-center mb-6">
         <h4 className="card-title">{title}</h4>
         <div className="flex items-center gap-4">
+        {isVisible && (
+          <>
         <Button
             onClick={handleAddNew}
             text="Add new"
             icon="heroicons-outline:plus"
             className="btn-dark"
           />
-          <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} /> {/* Pass globalFilter here */}
+          <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+          </>
+        )}
         </div>
       </div>
       <div className="overflow-x-auto w-full">

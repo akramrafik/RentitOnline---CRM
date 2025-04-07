@@ -6,7 +6,7 @@ import Icon from "@/components/ui/Icon";
 import Tooltip from "@/components/ui/Tooltip";
 // import ReactSelect from "@/components/partials/froms/ReactSelect";
 import ReactSelect from "@/components/partials/froms/ReactSelect";
-import SelectPage from "./filters"; 
+import Filters  from "./filters"; 
 
 const AgentLeadsPage = () => {
   // Manage the status for each agent outside the table
@@ -76,7 +76,7 @@ const AgentLeadsPage = () => {
 
   return (
     <div className="space-y-5">
-    <SelectPage />
+    <Filters  />
       <TableData title="Agent Leads"  columns={agentLeadsColumns} data={agentData} />
     </div>
   );

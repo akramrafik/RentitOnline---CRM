@@ -5,8 +5,25 @@ import GroupChart3 from "@/components/partials/widget/chart/group-chart-3";
 import SelectMonth from "@/components/partials/SelectMonth";
 import BasicArea from "@/components/partials/chart/appex-chart/BasicArea";
 import BarChart from "@/components/partials/chart/chartjs/Bar";
+import { useState, useEffect } from "react";
+import { getDashboardData } from "@/lib/api";
 
 const CrmPage = () => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getDashboardData(); // Fetching the data
+        setData(response.data); // Set the fetched data in the state
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchData(); // Call the function to fetch data
+  }, []);
+  
   return (
     <div>
      
@@ -15,7 +32,7 @@ const CrmPage = () => {
         <div className="lg:col-span-12 space-y-5">
         <Card>
               <div className="grid xl:grid-cols-4 lg:grid-cols-2 col-span-1 gap-3">
-                <GroupChart3 />
+              <GroupChart3 data={data}/>
               </div>
             </Card>
         </div>

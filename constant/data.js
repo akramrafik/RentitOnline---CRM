@@ -11,14 +11,14 @@ export const menuItems = [
     title: "AGENTS",
   },
   {
-    title: "Category Isights",
+    title: "Category Insights",
     icon: "heroicons-outline:cog",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/category-insights",
   },
   {
-    title: "Lead Isights",
+    title: "Lead Insights",
     icon: "heroicons-outline:command-line",
     isOpen: false,
     isHide: false,
