@@ -38,7 +38,7 @@ const MobileMenu = ({ className = "custom-class" }) => {
           <div className="flex items-center space-x-4">
             <div className="logo-icon">
               {!isDark && !isSemiDark ? (
-                <img src="/assets/images/logo/logo-c.svg" alt="" />
+                <img src="" alt="" />
               ) : (
                 <img src="/assets/images/logo/logo-c-white.svg" alt="" />
               )}

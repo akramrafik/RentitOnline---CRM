@@ -27,7 +27,7 @@ const Logo = () => {
               src={
                 isDark
                   ? "/assets/images/logo/logo-c-white.svg"
-                  : "/assets/images/logo/logo-c.svg"
+                  : ""
               }
               alt=""
             />

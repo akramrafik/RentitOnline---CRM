@@ -24,6 +24,7 @@ import Loading from "@/components/Loading";
 // import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import useNavbarType from "@/hooks/useNavbarType";
 import { motion, AnimatePresence } from "framer-motion";
+import { AuthProvider } from "../context/AuthContext";
 export default function RootLayout({ children }) {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
   const [mobileMenu, setMobileMenu] = useMobileMenu();
 
   return (
+    <AuthProvider>
     <div
       dir={isRtl ? "rtl" : "ltr"}
       className={`app-warp    ${isDark ? "dark" : "light"} ${
@@ -138,5 +140,6 @@ export default function RootLayout({ children }) {
         <Footer className={width > breakpoints.xl ? switchHeaderClass() : ""} />
       )}
     </div>
+    </AuthProvider>
   );
 }

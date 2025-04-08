@@ -22,7 +22,7 @@ const Login2 = () => {
                   </Link>
                 </div>
                 <div className="text-center 2xl:mb-10 mb-4">
-                  <h4 className="text-sm">Login to Dashboard</h4>
+                  <h4 className="text-sm">Admin Panel</h4>
                   {/* <div className="text-slate-500 dark:text-slate-400 text-base">
                     Login to Dashboard
                   </div> */}
