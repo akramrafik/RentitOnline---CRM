@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Collapse } from "react-collapse";
 import Icon from "@/components/ui/Icon";
+import SimpleIcon from "@/components/ui/SimpleIcon";
 import { toggleActiveChat } from "@/components/partials/app/chat/store";
 import { useDispatch } from "react-redux";
 import useMobileMenu from "@/hooks/useMobileMenu";
@@ -64,7 +65,11 @@ const Navmenu = ({ menus }) => {
             {!item.child && !item.isHeadr && (
               <Link className="menu-link" href={item.link}>
                 <span className="menu-icon flex-grow-0">
-                  <Icon icon={item.icon} />
+                {item.simpleIcon ? (
+          <SimpleIcon simpleIcon={item.simpleIcon} size={17} fill="#000"/>
+        ) : item.icon ? (
+          <Icon icon={item.icon} className="text-xl" />
+        ) : null}
                 </span>
                 <div className="text-box flex-grow">{item.title}</div>
                 {item.badge && <span className="menu-badge">{item.badge}</span>}

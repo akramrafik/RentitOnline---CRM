@@ -11,13 +11,17 @@ const api = axios.create({
 });
 
 
-api.interceptors.response.use(function(res){
-    if(res.status == 401){
-        Cookies.remove('auth_token');
-        window.location.reload()
-    }
+api.interceptors.request.use(
+    (config) => {
+        const token = Cookies.get('auth_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
-})
 
 export const csrf = async () => {
     try {
@@ -53,20 +57,44 @@ export const logout = async () => {
 };
 
 // dashboard fetch
-// export const getDashboardData = async () => {
-//     try {
-//       await csrf();
-//       const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard`, {data});
-//       return response.data;
-//     } catch (error) {
-//       console.error("Error fetching dashboard data:", error);
-//       if (error.response) {
-//         console.error("Status:", error.response.status);
-//         console.error("Data:", error.response.data);
-//       }
-//       throw error;
-//     }
-//   };
-  
+export const getDashboardData = async () => {
+    try {
+      await csrf(); // Assuming this is a CSRF token setup function
+      const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+      }
+      throw error;
+    }
+  };
+//   get monthly monthly-ads-report
+export const getMonthlyAdsReport = async () => {
+    try{
+        await csrf();
+        const response = await api.post(`${process.env.NEXT_PUBLIC_API_VERSION}/monthly-ads-report`);
+        return response.data;
+    } catch (error){
+        console.error('Error fetching monthly ads report:', error);
+     }
+};
+//   mobile otp
+export const GetmobileOtp = async() => {
+    try{
+        await csrf();
+        const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/customers/mobile-otp`);
+        return response.data;
+    }catch (err){
+        console.error('Error during mobile otp:', err);
+        if(err.response) {
+            console.error("Status:", err.response.status);
+            console.error("Data:", err.response.data);
+        }
+        throw err;
+    }
+};
 
 export default api;

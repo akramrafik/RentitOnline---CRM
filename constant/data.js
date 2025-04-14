@@ -1,3 +1,5 @@
+import SimpleIcon from "@/components/ui/SimpleIcon";
+
 export const menuItems = [
   {
     title: "Dashboard",
@@ -5,6 +7,13 @@ export const menuItems = [
     isOpen: true,
     isHide: false,  
     link: "/dashboard",
+  },
+  {
+    title: "Whatsapp OTP",
+    simpleIcon: "whatsapp",
+    isOpen: true,
+    isHide: false,  
+    link: "/",
   },
   {
     isHeadr: true,

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { api } from "@/lib/api"; // Assuming you have an axios instance or similar setup
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,19 +29,25 @@ const getLast7Days = () => {
 const BarChart = () => {
   const [isDark] = useDarkMode();
   const [chartData, setChartData] = useState([]);
-  const labels = getLast7Days();
+  const [labels, setLabels] = useState(getLast7Days()); // Default to the last 7 days
 
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://api.example.com/chart-data"); // Replace with your API URL
-        const data = await response.json();
-        
-        // Assuming API returns an array of numbers for the last 7 days
-        setChartData(data.last7Days); 
+        const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard`);
+        const lastWeekAds = response.data.data.last_week_ads;
+
+        // Extract the dates and ad counts from the response
+        const last7Days = Object.keys(lastWeekAds);
+        const adCounts = last7Days.map((day) => lastWeekAds[day]);
+
+        setLabels(last7Days); // Use the days as labels
+        setChartData(adCounts); // Use the ad counts for the data
+
       } catch (error) {
         console.error("Error fetching chart data:", error);
+        setChartData([]); // Optionally, handle error with fallback
       }
     };
 
