@@ -52,8 +52,9 @@ export const getUser = async () => {
 };
 
 export const logout = async () => {
+    let res = api.post(`${process.env.NEXT_PUBLIC_API_VERSION}/auth/logout`);
     Cookies.remove('auth_token')
-    return api.post(`${process.env.NEXT_PUBLIC_API_VERSION}/auth/logout`);
+    return res;
 };
 
 // dashboard fetch
@@ -96,5 +97,36 @@ export const GetmobileOtp = async() => {
         throw err;
     }
 };
+// email otp
+export const GetEmailOtp = async() =>{
+    try{
+        await csrf();
+        const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/customers/email-otp`);
+        return response.data;
+    }catch (err){
+        console.error('Error during email otp:', err);
+        if(err.response) {
+            console.error("Status:", err.response.status);
+            console.error("Data:", err.response.data);
+        }
+        throw err;
+    }
+};
 
+// agents module
+// category insights
+export const getCategoryInsights = async () => {
+    try {
+        await csrf();
+        const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching category insights:', error);
+        if (error.response) {
+            console.error("Status:", error.response.status);
+            console.error("Data:", error.response.data);
+        }
+        throw error;
+    }
+};
 export default api;

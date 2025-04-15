@@ -1173,3 +1173,11 @@ export const agentLeadData = [
   },
 
 ];
+// whats new data
+export const WhatsappData = [
+  {
+    phone_number: "Shifa",
+    otp: "shaikh.shifa@rentitonline.ae",
+    date: "Telesales",
+  }
+];

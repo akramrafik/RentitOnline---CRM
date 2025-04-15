@@ -66,7 +66,7 @@ const Navmenu = ({ menus }) => {
               <Link className="menu-link" href={item.link}>
                 <span className="menu-icon flex-grow-0">
                 {item.simpleIcon ? (
-          <SimpleIcon simpleIcon={item.simpleIcon} size={17} fill="#000"/>
+          <SimpleIcon simpleIcon={item.simpleIcon}/>
         ) : item.icon ? (
           <Icon icon={item.icon} className="text-xl" />
         ) : null}

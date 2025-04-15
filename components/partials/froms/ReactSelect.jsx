@@ -4,11 +4,11 @@ import Select from "react-select";
 const customStyles = {
   control: (provided, state) => ({
     ...provided,
-    padding: "5px",
+    padding: "3px",
     borderRadius: "6px",
     borderColor: state.isFocused ? "black" : "#ddd",
     boxShadow: state.isFocused ? "0 0 0 1px black" : "none",
-    outline: "none",  // Remove the default outline
+    outline: "none", 
     "&:hover": {
       borderColor: "black",
     },
@@ -19,7 +19,7 @@ const customStyles = {
   // Add a focus state to remove outline if present in some browsers
   singleValue: (provided) => ({
     ...provided,
-    outline: "none",  // Ensure no outline on the value
+    outline: "none", 
   }),
   // Customizing the focus state itself
   container: (provided) => ({

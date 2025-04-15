@@ -43,7 +43,7 @@ const TableData = ({ title , columns = [], data = [] }) => {
   const memoizedColumns = useMemo(() => columns, [columns]);
   const memoizedData = useMemo(() => data, [data]);
 
-  if (!columns.length || !data.length) {
+  if (!data.length) {
     return <p>Loading or No Data Available...</p>;
   }
 
@@ -57,23 +57,27 @@ const TableData = ({ title , columns = [], data = [] }) => {
     usePagination,
     useRowSelect,
     (hooks) => {
-      hooks.visibleColumns.push((columns) => [
-        {
-          id: "selection",
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-        },
-        ...columns,
-      ]);
+      const skipCheckboxFor = ["Recent Customer OTPs"];
+      if (!skipCheckboxFor.includes(title)) {
+        hooks.visibleColumns.push((columns) => [
+          {
+            id: "selection",
+            Header: ({ getToggleAllRowsSelectedProps }) => (
+              <div>
+                <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+              </div>
+            ),
+            Cell: ({ row }) => (
+              <div>
+                <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+              </div>
+            ),
+          },
+          ...columns,
+        ]);
+      }
     }
+    
   );
 
   const {
@@ -115,7 +119,7 @@ const TableData = ({ title , columns = [], data = [] }) => {
         </div>
       </div>
       <div className="overflow-x-auto w-full">
-      <table className="min-w-[1200px] divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
+      <table className="min-w-[1100px] divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
         <thead className="bg-slate-200 dark:bg-slate-700">
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>

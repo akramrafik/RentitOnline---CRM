@@ -3,9 +3,7 @@ import React, { useState } from "react";
 import TableData from "@/components/partials/table/TableData";
 import { insightData } from "@/constant/table-data";
 import CategoryInsightFilter from "./filters"
-import Tooltip from "@/components/ui/Tooltip";
 import Link from "next/link";
-import Icon from "@/components/ui/Icon";
 import Button from "@/components/ui/Button";
 const categoryInsights = () => {
   // Manage the status for each agent outside the table
@@ -34,7 +32,7 @@ const categoryInsights = () => {
   return (
     <div className="space-y-5">
     <CategoryInsightFilter/>
-      <TableData columns={insightColumn} data={insightData} />
+      <TableData title="Rio Agents" columns={insightColumn} data={insightData} />
     </div>
   );
 };

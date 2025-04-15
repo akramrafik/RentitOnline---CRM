@@ -132,6 +132,14 @@
     .text-box {
       @apply text-white dark:text-slate-300;
     }
+    .icon-box{
+      svg{
+        @apply text-white dark:text-slate-300;
+       path{
+        fill: #ffffff;
+       }
+      }
+    }
   }
   .menu-badge {
     @apply bg-slate-100  text-slate-900;

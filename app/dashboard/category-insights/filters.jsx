@@ -3,6 +3,7 @@ import Card from "@/components/ui/Card";
 import ReactSelect from "@/components/partials/froms/ReactSelect"; 
 import Icon from "@/components/ui/Icon";
 import { useEffect, useState } from "react";
+import { getCategoryInsights } from "@/lib/api";
 
 const getRandomColor = () => {
   const bgColors = [
@@ -20,38 +21,81 @@ const getRandomColor = () => {
 };
 const CategoryInsightFilter = () => { 
     const [colors, setColors] = useState({ randomBg: "bg-gray-500", randomText: "text-white" });
-  
+    const [category, setCategory] = useState([]);
+    const [emirate, setEmirate] = useState([]);
+    const [page, setPage] = useState([]);
+    const [insights, setInsights] = useState([]);
+    const [location, setLocation] = useState([]);
+    const [emirateOptions, setEmirateOptions] = useState([]);
     useEffect(() => {
       const { randomBg, randomText } = getRandomColor();
       setColors({ randomBg, randomText });
     }, []);
+    // Fetch data with the selected filters
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const data = await getCategoryInsights(category, emirate, location, page);
+      
+          // Categories
+          if (data?.categories) {
+            const formatted = data.categories.map((cat) => ({
+              value: cat.id,
+              label: cat.name,
+            }));
+            setCategoryOptions(formatted);
+          }
+      
+          // Emirates
+          if (data?.emirates) {
+            const formatted = data.emirates.map((e) => ({
+              value: e.id,
+              label: e.name,
+            }));
+            setEmirateOptions(formatted);
+          }
+      
+          setInsights(data.results ?? []);
+        } catch (error) {
+          console.error('Failed to fetch data:', error);
+        }
+      };      
+      fetchData();
+  }, [category, emirate, location, page]); // Re-fetch when filters change
+
+  const handleSelectChange = (field, value) => {
+      if (field === 'category') setCategory(value);
+      if (field === 'emirate') setEmirate(value);
+      if (field === 'location') setLocation(value);
+  };
   return(
     <div className="space-y-5">
         <Card>
             <div className="grid grid-cols-3 gap-5">
                 <div>
                     <ReactSelect 
-                    placeholder="Choose Category" />
+                    placeholder="Choose Category"
+                    />
                 </div>
                 <div>
                     <ReactSelect 
-                    placeholder="Choose Emirate" />
+                    options={emirateOptions}
+                    placeholder="Choose Emirate"
+                    onChange={(selected) => handleSelectChange('emirate', selected?.value)} />
                 </div>
                 <div>
                     <ReactSelect
                     placeholder="Choose Location" />
                 </div>
             </div>
-            <div className="grid xl:grid-cols-6 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
-         
-      </div>
+            <div className="grid xl:grid-cols-6 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4"></div>
         </Card>
         <div className="grid xl:grid-cols-6 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
         <Card bodyClass="pt-4 pb-3 px-4">
             <div className="flex space-x-3 rtl:space-x-reverse">
               <div className="flex-none">
               <div className={`h-12 w-12 rounded-full flex flex-col items-center justify-center text-2xl ${colors.randomBg} ${colors.randomText}`}>
-              <Icon icon="heroicons:circle-stack" />
+              <Icon icon="heroicons-outline:car"  />
               </div>
               </div>
               <div className="flex-1">
