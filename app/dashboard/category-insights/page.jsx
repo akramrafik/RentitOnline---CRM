@@ -1,40 +1,46 @@
 "use client";
 import React, { useState } from "react";
-import TableData from "@/components/partials/table/TableData";
+import SummaryTable from "./summary_table";
 import { insightData } from "@/constant/table-data";
-import CategoryInsightFilter from "./filters"
+import CategoryInsightFilter from "./filters";
 import Link from "next/link";
-import Button from "@/components/ui/Button";
-const categoryInsights = () => {
-  // Manage the status for each agent outside the table
+
+const CategoryInsights = () => {
   const [agentData, setAgentData] = useState(insightData);
 
   const insightColumn = [
     { Header: "Choose Location", accessor: "location" },
     { Header: "Economy cars", accessor: "economy_cars" },
     { Header: "Luxury cars", accessor: "luxuary_cars" },
-    { Header: "Sports cars", accessor: "sports_cars"},
+    { Header: "Sports cars", accessor: "sports_cars" },
     { Header: "Electric cars", accessor: "electric_cars" },
     { Header: "Limousine", accessor: "limousine" },
     { Header: "Commercial", accessor: "commercial" },
     { Header: "Chauffeur cars", accessor: "chauffeur_cars" },
     { Header: "Vendor", accessor: "vendor" },
     { Header: "Agent", accessor: "agent" },
-    { Header: "Action", accessor: "action",
+    {
+      Header: "Action",
+      accessor: "action",
       Cell: () => (
         <Link href="/dashboard/category-insights/comparison">
-            <Button text="Compare" className="btn-primary btn-sm" />
-            </Link>
+          <button className="btn-primary btn-sm">Compare</button>
+        </Link>
       ),
-     },
+    },
   ];
 
   return (
     <div className="space-y-5">
-    <CategoryInsightFilter/>
-      <TableData title="Rio Agents" columns={insightColumn} data={insightData} />
+      <CategoryInsightFilter />
+      <SummaryTable
+        title="Rio Agents"
+        columns={insightColumn}
+        data={agentData}
+        showAddNew={true}
+      />
     </div>
   );
 };
 
-export default categoryInsights;
+export default CategoryInsights;

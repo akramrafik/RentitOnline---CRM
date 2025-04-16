@@ -46,6 +46,7 @@
     "react-flatpickr": "^3.10.13",
     "react-hook-form": "^7.43.5",
     "react-leaflet": "^4.2.0",
+    "react-loading-skeleton": "^3.5.0",
     "react-quill": "^0.0.2",
     "react-redux": "^8.0.5",
     "react-select": "^5.7.0",

@@ -113,20 +113,4 @@ export const GetEmailOtp = async() =>{
     }
 };
 
-// agents module
-// category insights
-export const getCategoryInsights = async () => {
-    try {
-        await csrf();
-        const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching category insights:', error);
-        if (error.response) {
-            console.error("Status:", error.response.status);
-            console.error("Data:", error.response.data);
-        }
-        throw error;
-    }
-};
 export default api;
