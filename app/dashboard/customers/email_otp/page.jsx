@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TableData from "@/components/partials/table/TableData";
 import { WhatsappData } from "@/constant/table-data";
 import api, { GetEmailOtp } from "@/lib/api";
