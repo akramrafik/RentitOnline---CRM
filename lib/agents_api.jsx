@@ -36,5 +36,20 @@ export const getCategoryInsights = async (params = {}) => {
         throw error;
     }
 };
+export const getInsightCoparison = async (params = {}) => {
+    try{
+        await csrf();
+        const response = await agentApi.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights/comparison?`, {
+            params,
+        });
+        return response.data;
+    }catch (error) {
+        if (error.response) {
+            console.error("Status:", error.response.status);
+            console.error("Data:", error.response.data);
+        }
+        console.error('Error fetching insight comparison:', error);
+    }
+};
 
 export default agentApi;

@@ -1,47 +1,182 @@
 'use client';
 
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { useTable, useSortBy, useGlobalFilter } from "react-table";
+import Card from "@/components/ui/Card";
+import GlobalFilter from "@/components/partials/table/GlobalFilter";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
-const LocationCountsTable = ({ types = [], locations = [] }) => {
+const SkeletonRow = ({ columnsCount }) => (
+  <tr>
+    {Array.from({ length: columnsCount }).map((_, i) => (
+      <td key={i} className="px-4 py-2 border">
+        <Skeleton height={14} />
+      </td>
+    ))}
+  </tr>
+);
+
+const SkeletonHeader = ({ columnsCount }) => (
+  <tr>
+    {Array.from({ length: columnsCount }).map((_, i) => (
+      <th key={i} className="px-4 py-2 border">
+        <Skeleton height={16} width="70%" />
+      </th>
+    ))}
+  </tr>
+);
+
+const LocationCountsTable = ({ types = [], locations = [], loading = false }) => {
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get('category') || '';
+  const emirate = searchParams.get('emirate') || '';
+  const currentLocation = searchParams.get('location') || '';
+  const router = useRouter();
+
+  const handleCompare = (rowData) => {
+    if (!categoryId || !emirate || !currentLocation) {
+      toast.error("Please select a category, emirate, and location to compare.");
+      return;
+    }
+    const queryParams = new URLSearchParams({
+      category: categoryId,
+      emirate: emirate,
+      location: currentLocation,
+    });
+
+    router.push(`/dashboard/category-insights/comparison?${queryParams}`);
+  };
+  
+  const columns = useMemo(() => {
+    const staticCols = [
+      {
+        Header: "Location",
+        accessor: "location",
+      },
+      {
+        Header: "Agent",
+        accessor: "agent_name",
+        Cell: ({ value }) => value || "—",
+      },
+      {
+        Header: "Vendors",
+        accessor: "vendor_count",
+        Cell: ({ value }) => value ?? 0,
+      },
+    ];
+
+    const dynamicCols = types.map((type) => ({
+      Header: type,
+      accessor: type,
+      Cell: ({ value }) => value ?? 0,
+    }));
+    const actionCol = {
+      Header: "Action",
+      id: "action",
+      Cell: ({ row }) => (
+        <button
+          onClick={() => handleCompare(row.original)}
+          className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+        >
+          Compare
+        </button>
+      ),
+    };
+
+    return [...staticCols, ...dynamicCols,actionCol];
+  }, [types]);
+
+  const data = useMemo(() => locations, [locations]);
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state,
+    setGlobalFilter,
+  } = useTable({ columns, data }, useGlobalFilter, useSortBy);
+
+  const isEmpty = !loading && rows.length === 0;
+
   return (
-    <div className="overflow-x-auto mt-6">
-      <table className="min-w-full border border-slate-300 bg-white shadow-md rounded-md overflow-hidden text-sm">
-        <thead className="bg-slate-100 text-slate-700">
-          <tr>
-            <th className="px-4 py-2 border">Location</th>
-            <th className="px-4 py-2 border">Agent</th>
-            <th className="px-4 py-2 border">Vendors</th>
-            {types.map((type) => (
-              <th key={type} className="px-4 py-2 border text-nowrap">
-                {type}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {locations.length === 0 ? (
-            <tr>
-              <td colSpan={types.length + 3} className="text-center py-4 text-gray-500">
-                No data found
-              </td>
-            </tr>
-          ) : (
-            locations.map((loc, index) => (
-              <tr key={index} className="even:bg-slate-50">
-                <td className="px-4 py-2 border">{loc.location}</td>
-                <td className="px-4 py-2 border">{loc.agent_name || '—'}</td>
-                <td className="px-4 py-2 border">{loc.vendor_count ?? 0}</td>
-                {types.map((type) => (
-                  <td key={type} className="px-4 py-2 border text-center">
-                    {loc[type] ?? 0}
-                  </td>
-                ))}
+    <Card title="Location Counts Summary">
+      <div className="mb-4">
+        <GlobalFilter filter={state.globalFilter} setFilter={setGlobalFilter} />
+      </div>
+
+      <div className="overflow-x-auto">
+        <table
+          {...getTableProps()}
+          className="min-w-[1100px] divide-y divide-slate-100 table-fixed dark:divide-slate-700"
+        >
+          <thead className="bg-slate-200 dark:bg-slate-700">
+            {loading ? (
+              <SkeletonHeader columnsCount={columns.length} />
+            ) : (
+              headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      className="table-th whitespace-nowrap"
+                      key={column.id}
+                    >
+                      {column.render("Header")}
+                      <span className="ml-1">
+                        {column.isSorted
+                          ? column.isSortedDesc
+                            ? " 🔽"
+                            : " 🔼"
+                          : ""}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              ))
+            )}
+          </thead>
+          <tbody
+            {...getTableBodyProps()}
+            className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
+          >
+            {loading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <SkeletonRow key={idx} columnsCount={columns.length} />
+              ))
+            ) : isEmpty ? (
+              <tr>
+                <td colSpan={columns.length} className="table-td text-center py-4">
+                  No data found
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()} key={row.id}>
+                    {row.cells.map((cell) => (
+                      <td
+                        {...cell.getCellProps()}
+                        key={cell.column.id}
+                        className="table-td whitespace-nowrap"
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 };
 
