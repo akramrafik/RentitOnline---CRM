@@ -340,7 +340,7 @@ const ExampleTwo = ({ title = "Rio Agents" }) => {
                 disabled={!canNextPage}
                 className={`${
                   !canNextPage ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                }`} 
               >
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>

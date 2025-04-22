@@ -87,6 +87,147 @@
     // }
   }
 }
+
+.compared_column {
+  width: 70%;
+  display: flex;
+  overflow: auto;
+}
+
+.table_of_compare .table-container {
+  display: flex;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table_of_compare .table-container .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid #ddd
+}
+
+.table_of_compare .table-container .cell {
+  padding: 12px 40px;
+  color: #191919;
+  font-weight: 500;
+  text-align: left;
+  font-size: 15px
+}
+
+.table_of_compare .table-container .cell:nth-child(even) {
+  background: #faf8f8
+}
+
+@media screen and (max-width: 567px) {
+  .table_of_compare .table-container .cell {
+      font-size:14px
+  }
+}
+
+.table_of_compare .header-row {
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  border-right: rgba(231,231,231,.5411764706) solid 2px
+}
+
+.table_of_compare .header-row .cell {
+  margin-top: 2px
+}
+
+.table_of_compare .data-row {
+  display: flex;
+  flex-direction: column;
+  min-width: 28%
+}
+
+@media screen and (max-width: 990px) {
+  .table_of_compare .data-row {
+      min-width:48%
+  }
+}
+
+.table_of_compare .data-row .cell {
+  text-align: center;
+  border-right: #f2f2f2 solid 1px;
+  font-weight: 600
+}
+
+.table_of_compare .data-row .cell:first-child {
+  min-height: 100px;
+  min-height: 100px;
+  justify-content: center;
+  display: flex;
+  align-items: center
+}
+
+.table_of_compare .logo {
+  max-height: 60px;
+  margin: 0 auto;
+  max-width: 150px
+}
+
+@media screen and (max-width: 990px) {
+  .table_of_compare .logo {
+      max-height:60px;
+      max-width: 110px
+  }
+}
+
+.table_of_compare .header-cell {
+  flex: 2;
+  min-height: 90px;
+  display: flex;
+  align-items: center
+}
+
+.compared_column::-webkit-scrollbar {
+  width: 12px;
+  height: 12px
+}
+
+.compared_column::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px
+}
+
+.compared_column::-webkit-scrollbar-thumb {
+  background: #1e90ff;
+  border-radius: 10px;
+  border: 3px solid #f1f1f1
+}
+
+.compared_column::-webkit-scrollbar-thumb:hover {
+  background: #007acc
+}
+
+.compared_column {
+  scrollbar-width: thin;
+  scrollbar-color: #c7c7c7 #f1f1f1
+}
+.insights-row>div{
+  display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: start;
+    gap: 15px;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    overflow-x: auto;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+.insights-row>div>div{
+  min-width: 200px
+}
+
 @layer components {
   @import "components/table.scss";
   @import "components/map.scss";

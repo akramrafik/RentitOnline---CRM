@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import Card from "@/components/ui/Card";
 import GlobalFilter from "@/components/partials/table/GlobalFilter";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
 const SkeletonRow = ({ columnsCount }) => (
   <tr>
@@ -32,25 +31,30 @@ const SkeletonHeader = ({ columnsCount }) => (
 
 const LocationCountsTable = ({ types = [], locations = [], loading = false }) => {
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   const categoryId = searchParams.get('category') || '';
   const emirate = searchParams.get('emirate') || '';
   const currentLocation = searchParams.get('location') || '';
-  const router = useRouter();
 
   const handleCompare = (rowData) => {
+    const { categoryId, emirate, currentLocation } = rowData;
+
     if (!categoryId || !emirate || !currentLocation) {
       toast.error("Please select a category, emirate, and location to compare.");
       return;
     }
+
+    const currentPath = '/dashboard/category-insights/comparison';
     const queryParams = new URLSearchParams({
       category: categoryId,
-      emirate: emirate,
+      emirate,
       location: currentLocation,
     });
 
-    router.push(`/dashboard/category-insights/comparison?${queryParams}`);
+    router.push(`${currentPath}?${queryParams.toString()}`);
   };
-  
+
   const columns = useMemo(() => {
     const staticCols = [
       {
@@ -74,20 +78,20 @@ const LocationCountsTable = ({ types = [], locations = [], loading = false }) =>
       accessor: type,
       Cell: ({ value }) => value ?? 0,
     }));
+
     const actionCol = {
       Header: "Action",
       id: "action",
       Cell: ({ row }) => (
         <button
           onClick={() => handleCompare(row.original)}
-          className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
-        >
+          className="btn btn inline-flex justify-center btn-primary btn-sm">
           Compare
         </button>
       ),
     };
 
-    return [...staticCols, ...dynamicCols,actionCol];
+    return [...staticCols, ...dynamicCols, actionCol];
   }, [types]);
 
   const data = useMemo(() => locations, [locations]);
@@ -105,8 +109,9 @@ const LocationCountsTable = ({ types = [], locations = [], loading = false }) =>
   const isEmpty = !loading && rows.length === 0;
 
   return (
-    <Card title="Location Counts Summary">
-      <div className="mb-4">
+    <Card>
+      <div className="mb-4 flex justify-between items-center">
+        <h4 className="card-title">Location Counts</h4>
         <GlobalFilter filter={state.globalFilter} setFilter={setGlobalFilter} />
       </div>
 

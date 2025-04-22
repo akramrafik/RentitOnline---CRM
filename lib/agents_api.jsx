@@ -39,7 +39,7 @@ export const getCategoryInsights = async (params = {}) => {
 export const getInsightCoparison = async (params = {}) => {
     try{
         await csrf();
-        const response = await agentApi.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights/comparison?`, {
+        const response = await agentApi.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights/comparison`, {
             params,
         });
         return response.data;

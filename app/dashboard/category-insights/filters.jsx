@@ -11,7 +11,7 @@ import { getCategoryInsights } from "@/lib/agents_api";
 // === Utility ===
 const getRandomColor = () => {
   const bgColors = ["bg-[#ECF1FF]", "bg-[#EDE8FB]", "bg-[#FDEDEC]", "bg-[#E7FBFE]", "bg-[#FCEFEE]"];
-  return { randomBg: bgColors[Math.floor(Math.random() * bgColors.length)], randomText: "text-white" };
+  return { randomBg: bgColors[Math.floor(Math.random() * bgColors.length)], randomText: "text-gray" };
 };
 
 const SelectOrSkeleton = ({ loading, ...props }) =>
@@ -51,7 +51,6 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
         category: selectedCategory?.value,
         emirate: selectedEmirate?.value,
         location: location?.value,
-        page: 1,
       });
 
       const data = response?.data;
@@ -162,7 +161,7 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
 
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto insights-row">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {loading
             ? [...Array(6)].map((_, i) => (
@@ -182,12 +181,12 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
                   const { randomBg, randomText } = colorMap[type] || getRandomColor();
                   return (
                     <Card key={`${i}-${j}`} bodyClass="pt-4 pb-3 px-4">
-                      <div className="flex space-x-3">
+                      <div className="flex space-x-3" title={type}>
                         <div className={`h-12 w-12 rounded-full flex items-center justify-center text-2xl ${randomBg} ${randomText}`}>
                           <Icon icon="heroicons-outline:document-chart-bar" />
                         </div>
                         <div className="flex-1">
-                          <div className="text-sm text-slate-600 font-medium">{type}</div>
+                          <div className="text-sm text-slate-600 font-medium">  {type.length > 10 ? type.slice(0, 13) + "..." : type}</div>
                           <div className="text-lg font-medium text-slate-900">{item.summary[type] ?? 0}</div>
                         </div>
                       </div>
