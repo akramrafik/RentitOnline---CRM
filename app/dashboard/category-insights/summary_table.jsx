@@ -8,6 +8,7 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Pagination from "./pagination";
 
 const SkeletonRow = ({ columnsCount }) => (
   <tr>
@@ -36,9 +37,11 @@ const LocationCountsTable = ({ types = [], locations = [], loading = false }) =>
   const categoryId = searchParams.get('category') || '';
   const emirate = searchParams.get('emirate') || '';
   const currentLocation = searchParams.get('location') || '';
+  console.log("categoryId", categoryId);
+  console.log("emirate", emirate); 
+  console.log("currentLocation", currentLocation);
 
-  const handleCompare = (rowData) => {
-    const { categoryId, emirate, currentLocation } = rowData;
+  const handleCompare = () => {
 
     if (!categoryId || !emirate || !currentLocation) {
       toast.error("Please select a category, emirate, and location to compare.");
@@ -181,6 +184,7 @@ const LocationCountsTable = ({ types = [], locations = [], loading = false }) =>
           </tbody>
         </table>
       </div>
+      <Pagination />
     </Card>
   );
 };

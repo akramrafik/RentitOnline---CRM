@@ -102,7 +102,7 @@ export const menuItems = [
     icon: "heroicons-outline:rectangle-stack",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/categories",
   },
   {
     title: "Ads",
