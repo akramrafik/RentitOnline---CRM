@@ -9,7 +9,6 @@ import "react-loading-skeleton/dist/skeleton.css";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Pagination from "./pagination";
-
 const SkeletonRow = ({ columnsCount }) => (
   <tr>
     {Array.from({ length: columnsCount }).map((_, i) => (
@@ -30,32 +29,31 @@ const SkeletonHeader = ({ columnsCount }) => (
   </tr>
 );
 
-const LocationCountsTable = ({ types = [], locations = [], loading = false }) => {
+const LocationCountsTable = ({ types = [], locations = [], loading = false, currentPage, totalPages }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const categoryId = searchParams.get('category') || '';
   const emirate = searchParams.get('emirate') || '';
   const currentLocation = searchParams.get('location') || '';
-  console.log("categoryId", categoryId);
-  console.log("emirate", emirate); 
-  console.log("currentLocation", currentLocation);
+  const page = searchParams.get('page') || 1;
 
   const handleCompare = () => {
-
-    if (!categoryId || !emirate || !currentLocation) {
-      toast.error("Please select a category, emirate, and location to compare.");
+    if(!categoryId || !emirate || !currentLocation) {
+      toast.error("Please select all filters before comparing.");
       return;
     }
 
-    const currentPath = '/dashboard/category-insights/comparison';
-    const queryParams = new URLSearchParams({
-      category: categoryId,
-      emirate,
-      location: currentLocation,
-    });
+     // Get current URL params
+    const currentParams = new URLSearchParams(window.location.search);
 
-    router.push(`${currentPath}?${queryParams.toString()}`);
+    // Pass the current params along with the selected filters
+    currentParams.set("category", categoryId);
+    currentParams.set("emirate", emirate);
+    currentParams.set("location", currentLocation);
+    currentParams.set("page", page);
+
+    // Redirect to comparison page with URL params
+    router.push(`/dashboard/category-insights/comparison?${currentParams.toString()}`);
   };
 
   const columns = useMemo(() => {
@@ -184,7 +182,16 @@ const LocationCountsTable = ({ types = [], locations = [], loading = false }) =>
           </tbody>
         </table>
       </div>
-      <Pagination />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        handlePageChange={(newPage) => {
+          const url = new URL(window.location.href);
+          url.searchParams.set("page", newPage);
+          window.history.pushState({}, "", url);
+          window.dispatchEvent(new Event("popstate")); 
+        }}
+      />
     </Card>
   );
 };

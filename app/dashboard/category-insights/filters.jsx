@@ -33,6 +33,9 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pageFromURL = useMemo(() => {
+    return parseInt(searchParams.get("page")) || 1;
+  }, [searchParams]);
 
   // Get initial values from URL query params
   useEffect(() => {
@@ -43,6 +46,7 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
     if (emirateFromURL) setInitialEmirateId(emirateFromURL);
   }, []);
 
+  // Fetch data when component mounts or when filters change
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -51,16 +55,26 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
         category: selectedCategory?.value,
         emirate: selectedEmirate?.value,
         location: location?.value,
+        page: pageFromURL,
       });
-
+      console.log('API response:changessssss', response);
       const data = response?.data;
+      const locationCounts = data?.location_counts;
 
       setCategories(data?.categories?.map((cat) => ({ value: cat.id, label: cat.name })) || []);
       setEmirates(data?.emirates?.map((e) => ({ value: e.id, label: e.name })) || []);
       setLocations(data?.location_counts?.data?.map((loc) => ({ value: loc.location, label: loc.location })) || []);
       setInsights(data?.summery ? [{ types: Object.keys(data.summery), summary: data.summery }] : []);
 
-      onDataUpdate(data?.location_counts?.data || [], data?.types || []);
+      onDataUpdate(data?.location_counts?.data || [], data?.types || [], {
+        currentPage: locationCounts?.current_page,
+        totalPages: locationCounts?.last_page,
+      });
+      console.log('currentPage:', locationCounts?.current_page);
+      console.log('totalPages:', locationCounts?.last_page);
+      console.log('selectedCategory:', selectedCategory?.lebel);
+      console.log('selectedEmirate:', selectedEmirate?.label);
+      
     } catch (err) {
       console.error("Fetch error:", err);
       setError("Something went wrong while fetching insights.");
@@ -91,9 +105,10 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
     if (selectedCategory?.value) params.append("category", selectedCategory.value);
     if (selectedEmirate?.value) params.append("emirate", selectedEmirate.value);
     if (location?.value) params.append("location", location.value);
+    if (pageFromURL > 1) params.append("page", pageFromURL);
     router.push(`/dashboard/category-insights?${params.toString()}`);
     fetchData();
-  }, [selectedCategory, selectedEmirate, location]);
+  }, [selectedCategory, selectedEmirate, location, pageFromURL]);
 
   const colorMap = useMemo(() => {
     const map = {};
@@ -109,6 +124,7 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
     setSelectedCategory(null);
     setSelectedEmirate(null);
     setLocation(null);
+    router.push('/dashboard/category-insights');
   };
 
   return (
@@ -151,7 +167,7 @@ const CategoryInsightFilter = ({ onDataUpdate = () => {} }) => {
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center justify-center h-10 w-10 bg-gray-500 border border-gray-500 text-white rounded"
+              className="inline-flex items-center justify-center h-10 w-10 bg-primary-500 text-white rounded"
             >
               <Icon icon="heroicons-outline:arrow-path" />
             </button>

@@ -1,31 +1,37 @@
 import dynamic from "next/dynamic";
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+import { useEffect, useState } from "react";
 import useDarkMode from "@/hooks/useDarkMode";
 
-const BasicArea = ({ height = 350 }) => {
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+const BasicArea = ({ height = 350, data }) => {
   const [isDark] = useDarkMode();
+  const [monthlyChartData, setmonthlyChartData] = useState([]);
+  const [labels, setLabels] = useState([]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const monthlyData = Object.values(data).map((item) => item.count);
+    const monthlyLabels = Object.values(data).map((item) => item.date);
+
+    setLabels(monthlyLabels);
+    setmonthlyChartData(monthlyData);
+  }, [data]);
+
   const series = [
     {
-      data: [90, 70, 85, 60, 80, 70, 90, 75, 60, 80],
+      name: "Ads Posted",
+      data: monthlyChartData.length ? monthlyChartData : Array(12).fill(0),
     },
   ];
+
   const options = {
-    chart: {
-      toolbar: {
-        show: false,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      curve: "smooth",
-      width: 4,
-    },
+    chart: { toolbar: { show: false } },
+    dataLabels: { enabled: false },
+    stroke: { curve: "smooth", width: 4 },
     colors: ["#4669FA"],
-    tooltip: {
-      theme: "dark",
-    },
+    tooltip: { theme: isDark ? "dark" : "light" },
     grid: {
       show: true,
       borderColor: isDark ? "#334155" : "#e2e8f0",
@@ -46,45 +52,23 @@ const BasicArea = ({ height = 350 }) => {
       labels: {
         style: {
           colors: isDark ? "#CBD5E1" : "#475569",
-          fontFamily: "Inter",
+          fontFamily: "Lato",
         },
       },
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: labels,
       labels: {
         style: {
           colors: isDark ? "#CBD5E1" : "#475569",
-          fontFamily: "Inter",
+          fontFamily: "Lato",
         },
       },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    padding: {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
   };
+
   return (
     <div>
       <Chart options={options} series={series} type="area" height={height} width="100%" />

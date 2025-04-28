@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { api } from "@/lib/api"; // Assuming you have an axios instance or similar setup
+import { getDashboardData } from "@/lib/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,7 +18,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 // Function to get last 7 days
 const getLast7Days = () => {
   const days = [];
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 7; i > 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     days.push(date.toLocaleDateString("en-US", { day: "2-digit", month: "short" }));
@@ -29,24 +29,21 @@ const getLast7Days = () => {
 const BarChart = () => {
   const [isDark] = useDarkMode();
   const [chartData, setChartData] = useState([]);
-  const [labels, setLabels] = useState(getLast7Days()); // Default to the last 7 days
+  const [labels, setLabels] = useState(getLast7Days()); 
 
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard`);
-        const lastWeekAds = response.data.data.last_week_ads;
-
+        const response = await getDashboardData(); // Fetching the data
+        const lastWeekAds = response.data.last_week_ads;
         // Extract the dates and ad counts from the response
         const last7Days = Object.keys(lastWeekAds);
         const adCounts = last7Days.map((day) => lastWeekAds[day]);
-
         setLabels(last7Days); // Use the days as labels
-        setChartData(adCounts); // Use the ad counts for the data
-
+        setChartData([adCounts]); // Use the ad counts for the data
       } catch (error) {
-        console.error("Error fetching chart data:", error);
+        console.error("Error fetching 7days chart data:", error);
         setChartData([]); // Optionally, handle error with fallback
       }
     };
@@ -58,7 +55,7 @@ const BarChart = () => {
     labels,
     datasets: [
       {
-        data: chartData.length ? chartData : Array(7).fill(0), // Default to 0 if no data
+        data: chartData.length ? chartData : Array(7).fill(0), 
         fill: false,
         backgroundColor: hexToRGB(colors.primary, 0.6),
         borderColor: colors.primary,

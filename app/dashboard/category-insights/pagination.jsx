@@ -16,7 +16,12 @@ const Pagination = ({
     }
     setPages(pages);
   }, [totalPages]);
-
+  
+  useEffect(() => {
+    let pages = [];
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+    setPages(pages);
+  }, [totalPages]);
   return (
     <div className={className}>
       <ul className="pagination">

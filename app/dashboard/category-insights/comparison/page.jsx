@@ -1,17 +1,33 @@
 'use client';
 import { useEffect, useState } from "react";
 import Card from "@/components/ui/card";
-import getInsightCoparison from "@/lib/agents_api";
+import { getInsightComparison } from "@/lib/agents_api";
+import { useSearchParams } from "next/navigation";
 import CompareFilter from "./filters";
 import ComparisonRow from "./comparerow";
 import Skeleton from "react-loading-skeleton";
 
 export default function ComparePage() {
+  const searchParams = useSearchParams();
   const [filters, setFilters] = useState({
     category: null,
     emirate: null,
     location: null,
   });
+
+  useEffect(() => {
+    const category = searchParams.get('category');
+    const emirate = searchParams.get('emirate');
+    const location = searchParams.get('location');
+
+    if (category && emirate && location) {
+      setFilters({
+        category,
+        emirate,
+        location,
+      });
+    }
+  }, [searchParams]);
 
   const [filterOptions, setFilterOptions] = useState({
     categories: [],
@@ -30,11 +46,16 @@ export default function ComparePage() {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const res = await getComparisonFilterData(); // <- endpoint returning categories, emirates, types
+        const res = await getInsightComparison({
+          category: filters.category,
+          emirate: filters.emirate,
+          location: filters.location,
+        });
+        console.log("Filter options response:", res);
         setFilterOptions({
           categories: res.categories.map((c) => ({ value: c.id, label: c.name })),
           emirates: res.emirates.map((e) => ({ value: e.id, label: e.name })),
-          locations: res.types?.map((l) => ({ value: l.id, label: l.name })) || [],
+          locations: res.types?.map((t) => ({ value: t.id, label: t.name })) || [],
         });
       } catch (err) {
         console.error("Error loading filters:", err);
@@ -52,7 +73,7 @@ export default function ComparePage() {
 
       setLoading(true);
       try {
-        const res = await getInsightCoparison(filters);
+        const res = await getInsightComparison(filters);
         setData(res?.data || null);
       } catch (err) {
         console.error("Error fetching comparison data:", err);
@@ -83,15 +104,14 @@ export default function ComparePage() {
       <Card>
         <div className="card table_of_compare">
           <div className="table-container">
-            <div className="header-row">
-              <div className="cell header-cell">Deira - Dubai</div>
-              <div className="cell">Single</div>
-              <div className="cell">Partition</div>
-              <div className="cell">Studio Room</div>
-              <div className="cell">Bedspace</div>
-              <div className="cell">Maid Room</div>
-              <div className="cell">Vendors</div>
-            </div>
+          <div className="header-row">
+  <div className="cell header-cell">Deira - Dubai</div>
+  {filterOptions.locations.map((t) => (
+    <div className="cell" key={t.value}>{t.label}</div>
+  ))}
+  <div className="cell">Vendors</div>
+</div>
+
 
             <div className="compared_column">
               {loading ? (
@@ -102,14 +122,9 @@ export default function ComparePage() {
                     logo="https://demoadmin.rentitonline.ae/argon/img/brand/logo.png"
                     alt="RentItOnline"
                     data={[
-                      data?.rio_counts?.[2] || 0,
-                      data?.rio_counts?.[27] || 0,
-                      data?.rio_counts?.[29] || 0,
-                      data?.rio_counts?.[30] || 0,
-                      data?.rio_counts?.[31] || 0,
-                      data?.rio_counts?.[32] || 0,
-                      data?.rio_counts?.vendor_count || 0,
-                    ]}
+    ...filterOptions.locations.map((type) => data?.rio_counts?.[type.value] || 0),
+    data?.rio_counts?.vendor_count || 0,
+  ]}
                   />
 
                   {data?.competitors?.map((competitor, index) => {
@@ -120,14 +135,10 @@ export default function ComparePage() {
                         logo={competitor.logo}
                         alt={competitor.name}
                         data={[
-                          counts[2] || 0,
-                          counts[27] || 0,
-                          counts[29] || 0,
-                          counts[30] || 0,
-                          counts[31] || 0,
-                          counts[32] || 0,
-                          counts.vendor_count || 0,
-                        ]}
+  ...filterOptions.locations.map((t) => counts[t.value] || 0),
+  counts.vendor_count || 0,
+]}
+
                       />
                     );
                   })}

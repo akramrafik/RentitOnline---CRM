@@ -1,3 +1,4 @@
+import { data } from 'autoprefixer';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -62,6 +63,7 @@ export const getDashboardData = async () => {
     try {
       await csrf(); // Assuming this is a CSRF token setup function
       const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard`);
+    //   console.log('Actual API response:', response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -73,13 +75,14 @@ export const getDashboardData = async () => {
     }
   };
 //   get monthly monthly-ads-report
-export const getMonthlyAdsReport = async () => {
+export const getMonthlyAdsReport = async (params = {}) => {
     try{
         await csrf();
-        const response = await api.post(`${process.env.NEXT_PUBLIC_API_VERSION}/monthly-ads-report`);
+        const response = await api.post(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard/monthly-ads-report`, params);
         return response.data;
     } catch (error){
         console.error('Error fetching monthly ads report:', error);
+        throw error;   
      }
 };
 //   mobile otp

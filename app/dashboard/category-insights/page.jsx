@@ -10,11 +10,13 @@ export default function Page() {
   const [locationData, setLocationData] = useState([]);
   const [types, setTypes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [pagination, setPagination] = useState({currentPage: 1, totalPages: 1});
 
-  const handleDataUpdate = (locations, insightTypes) => {
+  const handleDataUpdate = (locations, insightTypes, paginationInfo) => {
     setIsLoading(true);
     setLocationData(locations);
     setTypes(insightTypes);
+    setPagination(paginationInfo || {currentPage: 1, totalPages: 1});
     setIsLoading(false);
   };
 
@@ -24,7 +26,7 @@ export default function Page() {
     <div className="p-4 space-y-4">
       <CategoryInsightFilter onDataUpdate={handleDataUpdate} />
       {hasData ? (
-        <LocationCountsTable types={types} locations={locationData} loading={isLoading} />
+        <LocationCountsTable types={types} locations={locationData} loading={isLoading} currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
       ) : (
         <div className="mt-6 text-gray-500">No data found.</div>
       )}
