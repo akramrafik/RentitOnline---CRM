@@ -6,7 +6,7 @@ import Icon from "@/components/ui/Icon";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getCategoryInsights } from "@/lib/agents_api";
+import { getCategoryInsights } from "@/lib/api";
 
 // === Utility ===
 const getRandomColor = () => {

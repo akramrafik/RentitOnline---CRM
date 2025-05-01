@@ -116,7 +116,7 @@ export const menuItems = [
     icon: "heroicons-outline:funnel",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/leads",
   },
   {
     title: "Plans",

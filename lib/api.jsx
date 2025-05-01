@@ -1,4 +1,3 @@
-import { data } from 'autoprefixer';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -116,4 +115,68 @@ export const GetEmailOtp = async() =>{
     }
 };
 
+// Get Category Insights
+export const getCategoryInsights = async (params = {}) => {
+    try {
+      await csrf();
+      const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights`, { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching category insights:', error);
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+      }
+      throw error;
+    }
+  };
+
+// Get Comparison Data
+export const getInsightComparison = async (params = {}) => {
+    try {
+      await csrf();
+      const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights/comparison`, { params });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching insight comparison:", error);
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+      }
+      throw error;
+    }
+  };
+
+//   location search
+export const locationSearch = async (locparams = {}) => {
+    try {
+      await csrf();
+      const response = await api.post(
+        `${process.env.NEXT_PUBLIC_API_VERSION}/agents/location-search`,
+        { ...locparams }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('error fetching location:', error);
+      console.log("location API Params:", locparams);
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+      }
+      throw error;
+    }
+  };
+
+  //get leads
+  export const getLeads = async () =>{
+    try{
+      await csrf();
+      const leadResponse = await api.get(
+        `${process.env.NEXT_PUBLIC_API_VERSION}/leads`,
+      );
+    }catch (error){
+      console.log('error fetchong leads', error);
+    }
+  };
+  
 export default api;

@@ -28,36 +28,6 @@ export const csrf = async () => {
   }
 };
 
-// Get Category Insights
-export const getCategoryInsights = async (params = {}) => {
-  try {
-    await csrf();
-    const response = await agentApi.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights`, { params });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching category insights:', error);
-    if (error.response) {
-      console.error("Status:", error.response.status);
-      console.error("Data:", error.response.data);
-    }
-    throw error;
-  }
-};
 
-// Get Comparison Data
-export const getInsightComparison = async (params = {}) => {
-  try {
-    await csrf();
-    const response = await agentApi.get(`${process.env.NEXT_PUBLIC_API_VERSION}/agents/category-insights/comparison`, { params });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching insight comparison:", error);
-    if (error.response) {
-      console.error("Status:", error.response.status);
-      console.error("Data:", error.response.data);
-    }
-    throw error;
-  }
-};
 
 export default agentApi;
