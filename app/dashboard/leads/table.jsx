@@ -21,16 +21,14 @@ const LeadTable = ({ data }) => {
       {
         Header: 'Ad ID/Link',
         accessor: 'ad_link',
-        Cell: ({ value }) => (
-          <a
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            {value}
-          </a>
-        ),
+        Cell: ({ value }) => {
+          const adId = value.split('/').pop();
+          return (
+            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+              Ad #{adId}
+            </a>
+          );
+        }        
       },
     ],
     []
