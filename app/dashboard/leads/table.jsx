@@ -24,11 +24,16 @@ const LeadTable = ({ data }) => {
         Cell: ({ value }) => {
           const adId = value.split('/').pop();
           return (
-            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+            <a
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
               Ad #{adId}
             </a>
           );
-        }        
+        },
       },
     ],
     []
@@ -76,7 +81,11 @@ const LeadTable = ({ data }) => {
                   >
                     {column.render('Header')}
                     <span>
-                      {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? ' 🔽'
+                          : ' 🔼'
+                        : ''}
                     </span>
                   </th>
                 ))}

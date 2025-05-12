@@ -87,7 +87,7 @@ const TableData = ({ title , columns = [], data = [] }) => {
     rows,
     setGlobalFilter,
     prepareRow,
-    state: { globalFilter },  // Destructure globalFilter from state
+    state: { globalFilter }, 
   } = tableInstance;
 
   

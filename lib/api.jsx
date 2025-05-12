@@ -168,14 +168,28 @@ export const locationSearch = async (locparams = {}) => {
   };
 
   //get leads
-  export const getLeads = async () =>{
-    try{
+export const getLeads = async (params = {}) => {
+  try {
+    await csrf();
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/leads?${query}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching leads:', error);
+    throw error;
+  }
+};
+//get category
+export const getCategories = async (params = {}) => {
+    try {
       await csrf();
-      const leadResponse = await api.get(
-        `${process.env.NEXT_PUBLIC_API_VERSION}/leads`,
-      );
-    }catch (error){
-      console.log('error fetchong leads', error);
+      const query = new URLSearchParams(params).toString();
+      const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/categories?${query}`);
+      return response.data;
+      console.log('Actual API response:', response.data);
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw error;
     }
   };
   
