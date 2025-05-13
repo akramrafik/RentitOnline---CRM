@@ -1,10 +1,17 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useTransition, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import CategoryFilter from "./filter";
 import BaseTable from "@/components/partials/table/BaseTable";
-import { getCategories } from "@/lib/api";
+import { getCategories, updateCategoryStatus } from "@/lib/api";
+import debounce from "lodash.debounce";
+import Swicth from "@/components/ui/Switch";
+import { toast } from "react-toastify";
+import Icon from "@/components/ui/Icon";
+import Tooltip from "@/components/ui/Tooltip";
+import { set } from "react-hook-form";
+import Button from "@/components/ui/Button";
 
 const CategoriesPage = () => {
   const searchParams = useSearchParams();
@@ -12,66 +19,154 @@ const CategoriesPage = () => {
 
   const [filter, setFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [type, setType] = useState("");
+  console.log("initial page index", pageIndex);
 
-  // Initialize state from URL only once
+  // Set initial state from URL
   useEffect(() => {
     const initialSearch = searchParams.get("search") || "";
     const initialPage = parseInt(searchParams.get("page") || "1", 10) - 1;
+    const initialType = searchParams.get("type") || "";
+    console.log("initialSearch", initialSearch);
     setFilter(initialSearch);
     setPageIndex(isNaN(initialPage) ? 0 : initialPage);
+    setType(initialType);
+    setHasInitialized(true);
   }, []);
 
-  // Update the URL when state changes (not on initial render)
+ 
+
+  // Update URL when filter or pageIndex changes
   useEffect(() => {
+    if (!hasInitialized) return;
     const params = new URLSearchParams();
     if (filter) params.set("search", filter);
+    if (type) params.set("type", type);
     if (pageIndex > 0) params.set("page", pageIndex + 1);
     router.replace(`?${params.toString()}`);
-  }, [filter, pageIndex]);
+  }, [filter, pageIndex, type, hasInitialized, router]);
 
-  const columns = [
-    { Header: "Id", accessor: "id" },
-    { Header: "Category Name", accessor: "name" },
-    { Header: "Parent Category", accessor: "parent" },
-    { Header: "Description", accessor: "description" },
-    { Header: "Status", accessor: "status" },
-    {
-      Header: "Action",
-      accessor: "action",
-      Cell: ({ row }) => (
-        <div className="flex gap-2">
-          <button onClick={() => alert(`Edit ${row.original.id}`)}>Edit</button>
-          <button onClick={() => alert(`Delete ${row.original.id}`)}>Delete</button>
-        </div>
-      ),
-    },
-  ];
+  // Debounced filter change
+  const debouncedSetFilter = useMemo(
+    () =>
+      debounce((value) => {
+        startTransition(() => {
+          setPageIndex(0); // reset to first page
+          setFilter(value);
+        });
+      }, 300),
+    []
+  );
 
-  const fetchData = useCallback(
+  // Table columns
+  const columns = useMemo(
+    () => [
+      { Header: "Id", accessor: "id" },
+      { Header: "Category Name", accessor: "name" },
+      { Header: "Parent", accessor: "parent",
+        Cell: ({ value }) => value ?? "Main Category",
+       },
+      { Header: "Description", accessor: "description" },
+      {
+  Header: "Status",
+accessor: "status",
+Cell: ({ row }) => {
+  const [status, setStatus] = useState(() => Boolean(Number(row.original.status)));
+  const [loading, setLoading] = useState(false);
+
+  const handleToggle = async () => {
+    setLoading(true);
+    alert('category status: ' + row.original.status);
+    try {
+      const response = await updateCategoryStatus(row.original.id);
+      if (response.status) {
+        setStatus(Boolean(Number(response.data.status))); // ensure it's boolean
+        toast.success("Status updated successfully");
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error toggling status:", error);
+      toast.error("An error occurred while updating status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Swicth
+      value={status}
+      onChange={handleToggle}
+      badge
+      disabled={loading}
+      prevIcon="heroicons-outline:check"
+      nextIcon="heroicons-outline:x"
+      activeClass="bg-green-500"
+    />
+  );
+},
+},
+      {
+        Header: "Action",
+        accessor: "action",
+        Cell: ({ row }) => (
+          <div className="flex gap-2">
+            <Tooltip content="Edit" placement="top" arrow animation="shift-away"><button className="action-btn" onClick={() => alert(`Edit ${row.original.id}`)}><Icon icon="heroicons:pencil-square"/></button></Tooltip>
+            <Tooltip content="Delete" placement="top" arrow animation="shift-away" theme="danger"><button className="action-btn" onClick={() => alert(`Delete ${row.original.id}`)}><Icon icon="heroicons:trash" /></button></Tooltip>
+            <Tooltip content="Specifications" placement="top" arrow animation="shift-away"><button className="action-btn"><Icon icon="heroicons:document-text" /></button></Tooltip>
+            <Tooltip content="FAQ" placement="top" arrow animation="shift-away"><button className="action-btn"><Icon icon="heroicons:circle-stack" /></button></Tooltip>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+console.log(" page just before fetchCategoryData", pageIndex);
+  // API call
+  const fetchCategoryData = useCallback(
     async ({ pageIndex }) => {
       const params = {
         search: filter,
         page: pageIndex + 1,
+        type: type,
       };
-      console.log("Fetching data with params:", params);
+      console.log("page just after fetchCategoryData", pageIndex);
       const response = await getCategories(params);
-      console.log("Data fetched successfully", response);
+      console.log("typeof argument", typeof pageIndex);
+console.log("pageIndex value", pageIndex);
       return response;
     },
-    [filter]
+    [filter,type,]
   );
 
   return (
     <div className="space-y-5">
-      <CategoryFilter />
+      <CategoryFilter 
+      onSearch={debouncedSetFilter} 
+      type={type}
+        setType={setType}
+      />
       <Card>
         <BaseTable
           columns={columns}
           filter={filter}
-          setFilter={setFilter}
-          apiCall={fetchData}
+          setFilter={debouncedSetFilter}
+          apiCall={fetchCategoryData}
           pageIndex={pageIndex}
-          setPageIndex={setPageIndex}
+          setPageIndex={(index) => startTransition(() => setPageIndex(index))}
+          params={{ type }}
+          title="Categories"
+          showGlobalFilter={false}
+          actionButton={
+    <Button
+      icon="heroicons-outline:plus"
+      text="Add New"
+      className="bg-primary-500 text-white"
+      onClick={() => alert("Add New Category")}
+    />
+  }
         />
       </Card>
     </div>

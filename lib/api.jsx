@@ -193,4 +193,19 @@ export const getCategories = async (params = {}) => {
     }
   };
   
+  // update category status
+  export const updateCategoryStatus = async (categoryId) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/toggle-status/${categoryId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category status:", error);
+    throw error;
+  }
+};
+
+  
 export default api;

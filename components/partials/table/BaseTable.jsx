@@ -10,8 +10,10 @@ import {
 } from 'react-table';
 import GlobalFilter from './GlobalFilter';
 import TablePagination from '../TablePagination';
+import Button from '@/components/ui/Button';
 
 const BaseTable = ({
+  title,
   columns,
   apiCall,
   params = {},
@@ -21,19 +23,23 @@ const BaseTable = ({
   setFilter,
   pageIndex,
   setPageIndex,
+  showGlobalFilter = true,
+  actionButton,
 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
 
+  // it will run when the pageIndex changes
   const fetchData = async () => {
     try {
       setLoading(true);
       const queryParams = {
         ...params,
+        pageIndex,
         page: pageIndex + 1,
         pageSize,
-        search: filter,
+        search: filter, 
       };
       const response = await apiCall(queryParams);
       setData(response.data || []);
@@ -45,9 +51,10 @@ const BaseTable = ({
     }
   };
 
+  // Fetch data when the component mounts or when filter or pageIndex changes
   useEffect(() => {
     fetchData();
-  }, [filter, pageIndex]);
+  }, [filter, pageIndex, params]);
 
   const {
     getTableProps,
@@ -75,10 +82,10 @@ const BaseTable = ({
         {
           id: 'selection',
           Header: ({ getToggleAllRowsSelectedProps }) => (
-            <input type="checkbox" {...getToggleAllRowsSelectedProps()} />
+            <input type="checkbox" className="table-checkbox" {...getToggleAllRowsSelectedProps()} />
           ),
           Cell: ({ row }) => (
-            <input type="checkbox" {...row.getToggleRowSelectedProps()} />
+            <input type="checkbox"  className="table-checkbox" {...row.getToggleRowSelectedProps()} />
           ),
         },
         ...columns,
@@ -88,12 +95,16 @@ const BaseTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <GlobalFilter filter={filter} setFilter={setFilter} />
+      <div className="md:flex justify-between items-center mb-6">
+        <h4 className="card-title">{title}</h4>
+        {actionButton}
+        {showGlobalFilter && (
+          <GlobalFilter filter={filter} setFilter={setFilter} /> 
+        )}
       </div>
 
       <div className="overflow-x-auto w-full">
-        <table {...getTableProps()} className="min-w-[1100px] divide-y divide-slate-100 table-fixed dark:divide-slate-700">
+        <table className="min-w-[100%] divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
           <thead className="bg-slate-200 dark:bg-slate-700">
             {headerGroups.map((headerGroup) => (
               <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
@@ -101,7 +112,7 @@ const BaseTable = ({
                   <th
                     key={column.id}
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="table-th whitespace-nowrap"
+                     className="table-th whitespace-nowrap"
                   >
                     {column.render('Header')}
                     <span className="ml-1">
@@ -132,9 +143,9 @@ const BaseTable = ({
               page.map((row) => {
                 prepareRow(row);
                 return (
-                  <tr key={row.id} {...row.getRowProps()} className="hover:bg-gray-50">
+                  <tr key={row.id} {...row.getRowProps()}>
                     {row.cells.map((cell) => (
-                      <td key={cell.column.id} {...cell.getCellProps()} className="px-4 py-2 border-b">
+                      <td key={cell.column.id} {...cell.getCellProps()} className="table-td whitespace-nowrap">
                         {cell.render('Cell')}
                       </td>
                     ))}
@@ -170,6 +181,7 @@ const BaseTable = ({
 };
 
 BaseTable.propTypes = {
+  title: PropTypes.string,
   columns: PropTypes.array.isRequired,
   apiCall: PropTypes.func.isRequired,
   params: PropTypes.object,
@@ -179,6 +191,7 @@ BaseTable.propTypes = {
   setFilter: PropTypes.func,
   pageIndex: PropTypes.number,
   setPageIndex: PropTypes.func,
+  actionButton: PropTypes.node,
 };
 
 export default BaseTable;
