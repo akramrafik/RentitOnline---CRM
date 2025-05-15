@@ -4,13 +4,13 @@ import Select from "react-select";
 const customStyles = {
   control: (provided, state) => ({
     ...provided,
-    padding: "1px",
-    borderRadius: "6px",
-    borderColor: state.isFocused ? "black" : "#ddd",
-    boxShadow: state.isFocused ? "0 0 0 1px black" : "none",
-    outline: "none",
+    //padding: "1px",
+    //borderRadius: "6px",
+    borderColor: state.isFocused ? "#e2e8f0" : "#e2e8f0",
+    boxShadow: state.isFocused ? "#e2e8f0" : "#e2e8f0",
+    outline: "000",
     "&:hover": {
-      borderColor: "black",
+      borderColor: "#596678",
     },
   }),
   indicatorSeparator: () => ({

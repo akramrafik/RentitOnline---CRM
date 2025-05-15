@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback, useTransition, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useTransition, useMemo, use } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import CategoryFilter from "./filter";
@@ -22,17 +22,21 @@ const CategoriesPage = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [type, setType] = useState("");
-  console.log("initial page index", pageIndex);
+  const [parentId, setParentId] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
 
   // Set initial state from URL
   useEffect(() => {
     const initialSearch = searchParams.get("search") || "";
     const initialPage = parseInt(searchParams.get("page") || "1", 10) - 1;
     const initialType = searchParams.get("type") || "";
-    console.log("initialSearch", initialSearch);
+    const initialParentId = searchParams.get("parent") || "";
     setFilter(initialSearch);
     setPageIndex(isNaN(initialPage) ? 0 : initialPage);
     setType(initialType);
+    setParentId(initialParentId);
     setHasInitialized(true);
   }, []);
 
@@ -45,8 +49,9 @@ const CategoriesPage = () => {
     if (filter) params.set("search", filter);
     if (type) params.set("type", type);
     if (pageIndex > 0) params.set("page", pageIndex + 1);
+    if (parentId) params.set("parent", parentId);
     router.replace(`?${params.toString()}`);
-  }, [filter, pageIndex, type, hasInitialized, router]);
+  }, [filter, pageIndex, type, hasInitialized, router, parentId]);
 
   // Debounced filter change
   const debouncedSetFilter = useMemo(
@@ -89,7 +94,6 @@ Cell: ({ row }) => {
       }
     } catch (error) {
       console.error("Error toggling status:", error);
-      toast.error("An error occurred while updating status");
     } finally {
       setLoading(false);
     }
@@ -123,7 +127,6 @@ Cell: ({ row }) => {
     ],
     []
   );
-console.log(" page just before fetchCategoryData", pageIndex);
   // API call
   const fetchCategoryData = useCallback(
     async ({ pageIndex }) => {
@@ -131,14 +134,12 @@ console.log(" page just before fetchCategoryData", pageIndex);
         search: filter,
         page: pageIndex + 1,
         type: type,
+        parent: parentId,
       };
-      console.log("page just after fetchCategoryData", pageIndex);
       const response = await getCategories(params);
-      console.log("typeof argument", typeof pageIndex);
-console.log("pageIndex value", pageIndex);
       return response;
     },
-    [filter,type,]
+    [filter,type, parentId]
   );
 
   return (
@@ -146,7 +147,10 @@ console.log("pageIndex value", pageIndex);
       <CategoryFilter 
       onSearch={debouncedSetFilter} 
       type={type}
-        setType={setType}
+      setType={setType}
+      parentId={parentId}
+  setParentId={setParentId}
+  parentCategories={categories}
       />
       <Card>
         <BaseTable
@@ -160,12 +164,30 @@ console.log("pageIndex value", pageIndex);
           title="Categories"
           showGlobalFilter={false}
           actionButton={
+            <div className="space-xy-5">
+             <Button
+  icon="heroicons-outline:refresh"
+  text="Clear filter"
+  className={`bg-white text-primary-500 ${
+    !filter && !type && !parentId ? 'opacity-50 cursor-not-allowed' : ''
+  }`}
+  onClick={() => {
+    setFilter("");
+    setType("");
+    setParentId("");
+    setPageIndex(0);
+  }}
+  disabled={!filter && !type && !parentId}
+/>
+
     <Button
       icon="heroicons-outline:plus"
       text="Add New"
       className="bg-primary-500 text-white"
-      onClick={() => alert("Add New Category")}
+      link={"/dashboard/categories/create_category"}
+      //onClick={() => alert("Add New Category")}
     />
+    </div>
   }
         />
       </Card>

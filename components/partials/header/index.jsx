@@ -61,7 +61,7 @@ const Header = ({ className = "custom-class" }) => {
              ${
                menuType === "horizontal" && width > breakpoints.xl
                  ? "py-1"
-                 : "md:py-6 py-3"
+                 : "md:py-5 py-3"
              }
         `}
       >

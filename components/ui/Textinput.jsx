@@ -45,13 +45,13 @@ const Textinput = ({
         <label
           htmlFor={id}
           className={`block capitalize ${classLabel}  ${
-            horizontal ? "flex-0 mr-6 md:w-[100px] w-[60px] break-words" : ""
+            horizontal ? "flex-0 mr-7 md:w-[100px] w-[60px] break-words" : ""
           }`}
         >
           {label}
         </label>
       )}
-      <div className={`relative ${horizontal ? "flex-1" : ""}`}>
+      <div className={`relative ${horizontal ? "flex-1 max-w-[350px]" : ""}`}>
         {name && !isMask && (
           <input
             type={type === "password" && open === true ? "text" : type}
