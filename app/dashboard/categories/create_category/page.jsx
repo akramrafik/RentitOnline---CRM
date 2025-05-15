@@ -7,15 +7,28 @@ import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon'; 
 import Textarea from '@/components/ui/Textarea'; 
 import ReactSelect from '@/components/partials/froms/ReactSelect'; 
-import Radio from "@/components/ui/Radio";
-import ReactQuill  from 'react-quill';
+import dynamic from 'next/dynamic';
+import 'froala-editor/css/froala_editor.pkgd.min.css';
+import 'froala-editor/css/froala_style.min.css';
+
+const FroalaEditorComponent = dynamic(() => import('react-froala-wysiwyg'), {
+  ssr: false,
+});
+
+const editorConfig = {
+  placeholderText: 'Schema Code',
+  charCounterCount: true,
+  toolbarButtons: ['bold', 'italic', 'underline', 'strikeThrough', 'formatOL', 'formatUL', 'insertLink', 'insertImage'],
+  pluginsEnabled: ['align', 'charCounter', 'link', 'image', 'lists'],
+};
+
 
 const CreateCategory = () => { 
     const [checked, setChecked] = useState(true);
     const [checked2, setChecked2] = useState(false);
     const [checked3, setChecked3] = useState(true);
     const [checked4, setChecked4] = useState(true);
-    const [value, setValue] = useState('');
+     const [content, setContent] = useState('');
      return (
 <div className="grid xl:grid-cols-1 grid-cols-1 gap-5 ">
     <Card>
@@ -114,8 +127,29 @@ const CreateCategory = () => {
             type="text" 
             horizontal 
             placeholder='' />
-            <ReactQuill theme="snow" value={value} onChange={setValue} />
+            <FroalaEditorComponent
+              tag="textarea"
+              config={editorConfig}
+              model={content}
+              onModelChange={setContent}
+            />
+            <Textarea 
+            label="Schema Code  " 
+            type="text" 
+            placeholder=""
+            rows="1" 
+            horizontal 
+                className='w-full max-w-[350px]'
+            />
+            <div className="flex flex-wrap space-xy-6 mt-4 gap-4 mr-80">
+          <Checkbox
+            label="Enable Payment Gateway"
+            value={checked3}
+            onChange={() => setChecked3(!checked3)}
+          />
+          </div>
         </div>
+        
     </Card>
 </div>
 ); }; export default CreateCategory;
