@@ -13,6 +13,8 @@ const Swicth = ({
   wrapperClass = " ",
   labelClass = "text-slate-500 dark:text-slate-400 text-sm leading-6",
   badge,
+  activeText = "Active",
+  inactiveText = "Inactive",
 }) => {
   return (
     <div>
@@ -68,7 +70,11 @@ const Swicth = ({
           `}
           />
         </div>
-        {label && <span className={labelClass}>{label}</span>}
+        {label && (
+  <span className={labelClass}>
+    {value ? activeText : inactiveText}
+  </span>
+)}
       </label>
     </div>
   );

@@ -76,11 +76,16 @@ const FileinputPage = () => {
       </Card>
       <Card title="File Name Formatting">
         <Fileinput
-          name="basic"
-          badge
-          selectedFile={selectedFile}
-          onChange={handleFileChange}
-        />
+      name="upload"
+      id="file"
+      label="Browse"
+      onChange={handleFileChange}
+      placeholder="Choose a file or drop it here..."
+      multiple={true} // or false depending on your use case
+      preview={true}
+      selectedFile={selectedFile}
+      selectedFiles={selectedFiles}
+    />
       </Card>
     </div>
   );

@@ -2,11 +2,11 @@ import React from "react";
 import Icon from "@/components/ui/Icon";
 const Textarea = ({
   label,
+  register,
   placeholder,
   classLabel = "form-label",
   className = "",
   classGroup = "",
-  register,
   name,
   readonly,
   dvalue,
