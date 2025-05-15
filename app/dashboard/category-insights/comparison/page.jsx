@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from "react";
-import Card from "@/components/ui/card";
+import Card from "@/components/ui/Card";
 import { getInsightComparison, locationSearch } from "@/lib/api";
 import { useSearchParams, useRouter } from "next/navigation";
 import CompareFilter from "./filters";
