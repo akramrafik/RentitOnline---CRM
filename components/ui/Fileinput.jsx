@@ -24,14 +24,19 @@ const Fileinput = ({
       <label htmlFor={id} className="cursor-pointer group">
         <div className="w-32 h-32  border border-gray-300 overflow-hidden relative bg-gray-100 flex items-center justify-center">
           {selectedFile ? (
-            <img
-              src={URL.createObjectURL(selectedFile)}
-              alt="profile"
-              className="object-cover w-full h-full"
-            />
-          ) : (
-            <FaUserCircle className="text-gray-400 text-7xl" />
-          )}
+  <img
+    src={
+      typeof selectedFile === 'string'
+        ? selectedFile // editing mode (already uploaded image)
+        : URL.createObjectURL(selectedFile) // new upload
+    }
+    alt="Selected"
+    className="object-cover w-full h-full"
+  />
+) : (
+  <FaUserCircle className="text-gray-400 text-7xl" />
+)}
+
 
           {/* Pen Icon Overlay */}
           <div className="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow group-hover:scale-110 transition">

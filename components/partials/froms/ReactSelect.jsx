@@ -35,6 +35,7 @@ const ReactSelect = ({
   ...props            // Allow other props to be passed to the Select component
 }) => {
   return (
+    <div>
     <Select
       {...props}
       options={options}        // Passing the options dynamically
@@ -46,6 +47,12 @@ const ReactSelect = ({
       styles={customStyles}
       placeholder={placeholder || "Select an option"}  // Default placeholder text
     />
+    {/* {error && (
+        <div className="text-danger-500 text-sm mt-1">
+          {error.message}
+        </div>
+      )} */}
+      </div>
   );
 };
 
