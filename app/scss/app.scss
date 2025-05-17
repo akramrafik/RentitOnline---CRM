@@ -49,6 +49,7 @@
     }
   }
 
+
   html[dir="rtl"] {
     .recharts-wrapper {
       direction: rtl;
@@ -227,6 +228,8 @@
 .insights-row>div>div{
   min-width: 200px
 }
+
+
 
 @layer components {
   @import "components/table.scss";

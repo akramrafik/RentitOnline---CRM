@@ -1,4 +1,9 @@
 // InValid Select
+.has-error {
+    .select__control {
+      @apply border-danger-500;
+    }
+  }
 .rentitonline-app {
   .react-select.is-invalid {
     .select__control {

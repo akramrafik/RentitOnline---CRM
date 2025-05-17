@@ -32,6 +32,7 @@ const ReactSelect = ({
   onChange,            // onChange handler
   placeholder,         // Placeholder text for the select input
   isMulti = false,     // Whether multiple selections are allowed
+  error,              // Error message to display
   ...props            // Allow other props to be passed to the Select component
 }) => {
   return (
@@ -42,18 +43,21 @@ const ReactSelect = ({
       value={value}            // Setting the value of the selected option
       onChange={onChange}      // Handling the change event
       isMulti={isMulti}        // Supporting multiple selection if needed
-      className="react-select"
+       className={`${
+              error ? " has-error" : " "
+            } react-select `}
       classNamePrefix="select"
       styles={customStyles}
       placeholder={placeholder || "Select an option"}  // Default placeholder text
     />
-    {/* {error && (
+    {error && (
         <div className="text-danger-500 text-sm mt-1">
           {error.message}
         </div>
-      )} */}
+      )}
       </div>
   );
 };
 
 export default ReactSelect;
+
