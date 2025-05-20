@@ -16,7 +16,6 @@ import Button from "@/components/ui/Button";
 const CategoriesPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const [filter, setFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -58,7 +57,7 @@ const CategoriesPage = () => {
     () =>
       debounce((value) => {
         startTransition(() => {
-          setPageIndex(0); // reset to first page
+          setPageIndex(0);
           setFilter(value);
         });
       }, 300),

@@ -2,9 +2,45 @@
 import React from "react";
 import PropTypes from "prop-types";
 import clsx from "clsx";
+const DOTS = "..."
+
+const getPaginationRange = (currentPage, totalPages, siblingCount = 1) => {
+  const totalPageNumbers = siblingCount * 2 + 5;
+
+  if (totalPages <= totalPageNumbers) {
+    return Array.from({ length: totalPages }, (_, i) => i);
+  }
+
+  const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+  const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages - 2);
+
+  const showLeftDots = leftSiblingIndex > 1;
+  const showRightDots = rightSiblingIndex < totalPages - 2;
+
+  const range = [];
+
+  range.push(0); // First page
+
+  if (showLeftDots) {
+    range.push(DOTS);
+  }
+
+  for (let i = leftSiblingIndex; i <= rightSiblingIndex; i++) {
+    range.push(i);
+  }
+
+  if (showRightDots) {
+    range.push(DOTS);
+  }
+
+  range.push(totalPages - 1); // Last page
+
+  return range;
+};
 
 const TablePagination = ({ currentPage, totalPages, onPageChange }) => {
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i);
+  //const pageNumbers = Array.from({ length: totalPages }, (_, i) => i);
+  const paginationRange = getPaginationRange(currentPage, totalPages);
 
   const isFirst = currentPage === 0;
   const isLast = currentPage === totalPages - 1;
@@ -34,20 +70,26 @@ const TablePagination = ({ currentPage, totalPages, onPageChange }) => {
         &lsaquo;
       </button>
 
-      {pageNumbers.map((page) => (
-        <button
-          key={page}
-          onClick={() => handlePageChange(page)}
-          className={clsx(
-            "w-8 h-8 rounded-full border flex items-center justify-center",
-            page === currentPage
-              ? "bg-blue-600 text-white shadow"
-              : "text-slate-700 hover:bg-gray-100"
-          )}
-        >
-          {page + 1}
-        </button>
-      ))}
+      {paginationRange.map((page, index) =>
+        page === DOTS ? (
+          <span key={index} className="px-2 text-slate-400 select-none">
+            &hellip;
+          </span>
+        ) : (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={clsx(
+              "w-8 h-8 rounded-full border flex items-center justify-center",
+              page === currentPage
+                ? "bg-blue-600 text-white shadow"
+                : "text-slate-700 hover:bg-gray-100"
+            )}
+          >
+            {page + 1}
+          </button>
+        )
+      )}
 
       <button
         onClick={() => handlePageChange(currentPage + 1)}

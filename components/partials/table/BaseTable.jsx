@@ -11,6 +11,18 @@ import {
 import GlobalFilter from './GlobalFilter';
 import TablePagination from '../TablePagination';
 import Button from '@/components/ui/Button';
+import Skeleton from 'react-loading-skeleton';
+
+const SkeletonRow = ({ colSpan }) => (
+  <tr>
+    {[...Array(colSpan)].map((_, i) => (
+      <td key={i} className="table-td whitespace-nowrap py-3">
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse w-3/4"></div>
+      </td>
+    ))}
+  </tr>
+);
+
 
 const BaseTable = ({
   title,
@@ -97,10 +109,12 @@ const BaseTable = ({
     <div className="space-y-4">
       <div className="md:flex justify-between items-center mb-6">
         <h4 className="card-title">{title}</h4>
+        <div className='flex align-center'>
         {actionButton}
         {showGlobalFilter && (
-          <GlobalFilter filter={filter} setFilter={setFilter} /> 
+          <GlobalFilter filter={filter} setFilter={setFilter}  onSearch/> 
         )}
+        </div>
       </div>
 
       <div className="overflow-x-auto w-full">
@@ -134,11 +148,9 @@ const BaseTable = ({
             {...getTableBodyProps()}
           >
             {loading ? (
-              <tr>
-                <td colSpan={columns.length + 1} className="table-td whitespace-nowrap py-4 text-center">
-                  Loading...
-                </td>
-              </tr>
+             [...Array(pageSize)].map((_, i) => (
+                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 2 : 1)} />
+              ))
             ) : page.length > 0 ? (
               page.map((row) => {
                 prepareRow(row);

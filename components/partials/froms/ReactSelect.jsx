@@ -28,7 +28,8 @@ const customStyles = {
 
 const ReactSelect = ({
   options,             // Array of options to display
-  value,               // Selected value
+  value,
+  validation,               // Selected value
   onChange,            // onChange handler
   placeholder,         // Placeholder text for the select input
   isMulti = false,     // Whether multiple selections are allowed
@@ -40,6 +41,7 @@ const ReactSelect = ({
     <Select
       {...props}
       options={options}        // Passing the options dynamically
+      validation={validation}
       value={value}            // Setting the value of the selected option
       onChange={onChange}      // Handling the change event
       isMulti={isMulti}        // Supporting multiple selection if needed

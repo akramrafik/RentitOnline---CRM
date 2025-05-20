@@ -4,7 +4,7 @@ const GlobalFilter = ({ filter, setFilter }) => {
   const [value, setValue] = useState(filter);
   const onChange = (e) => {
     setValue(e.target.value);
-    setFilter(e.target.value || undefined);
+    setFilter(e.target.value);
   };
   return (
     <div>
