@@ -1,39 +1,47 @@
-"use client";
-import React, { use, useEffect, useState } from "react";
-import TableData from "@/components/partials/table/TableData";
-import { WhatsappData } from "@/constant/table-data";
-import api, { GetmobileOtp } from "@/lib/api";
+'use client'
+import React from "react";
+import Card from "@/components/ui/Card";
+import BaseTable from "@/components/partials/table/BaseTable";
+import {useMemo, useCallback, useState, useTransition } from "react";
+import {GetmobileOtp} from "@/lib/api";
+
 
 const WhatsappOtp = () => {
-    const [whatsappDataState, setWhatsappDataState] = useState(WhatsappData);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [isPending, startTransition] = useTransition();
 
-    const WhatsappOtpColumns = [
-        { Header: "Phone Number", accessor: "phone_number" },
-        { Header: "OTP", accessor: "otp" },
-        { Header: "Date", accessor: "date" },
-    ];
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await GetmobileOtp();
-                const mappedData = response.data.map((item) => ({
-                    phone_number: item.identifier, 
-                    otp: item.otp,
-                    date: item.date,
-                }));
-                setWhatsappDataState(mappedData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-    
-        fetchData();
-    }, []); 
-    
-    return (
-        <div>
-            <TableData title="Recent Customer OTPs" columns={WhatsappOtpColumns} data={whatsappDataState} />
-        </div>
+     const columns = useMemo(
+        () => [
+          { Header: "Phone Number", accessor: "identifier" },
+          { Header: "OTP", accessor: "otp"},
+          { Header: "Date", accessor: "date",},
+        ],
+        []
+      );
+
+     // API call
+        const fetchWhatsappOtp = useCallback(
+          async ({ pageIndex }) => {
+             const params = {
+          page: pageIndex + 1,
+             }
+            const response = await GetmobileOtp(params);
+            return response;
+          },
+          []
+        );
+    return(
+        <Card>
+            <BaseTable
+            title="Recent Customer OTPs"
+            columns={columns}
+            apiCall={fetchWhatsappOtp}
+            params={{}}
+            pageIndex={pageIndex}
+            setPageIndex={(index) => startTransition(() => setPageIndex(index))}
+            showGlobalFilter={false}
+            />
+        </Card>
     );
 };
 

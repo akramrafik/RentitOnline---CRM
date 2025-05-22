@@ -222,5 +222,48 @@ export const createCategory = async (params = {}) => {
       throw error;
     }
   };
+
+  // get plan 
+  export const getPlan = async() => {
+    try{
+      await csrf();
+      const response = await api.get(
+        `${process.env.NEXT_PUBLIC_API_VERSION}/plans`,
+      );
+      console.log('response from plan', response.data);
+      return response.data;
+    }catch(error){
+      console.error('error fetching plans', error);
+      throw error;
+    }
+  };
+  // get packages
+  export const getPlanPackages = async (planId, params = {}) => {
+  try {
+    await csrf();
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/plans/${planId}/packages?${query}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+    throw error;
+  }
+};
+
+  // toggle plan status
+  export const updatePlanStatus = async (planId) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/plans/toggle-status/${planId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category status:", error);
+    throw error;
+  }
+};
   
 export default api;

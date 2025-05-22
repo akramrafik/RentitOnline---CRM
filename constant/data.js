@@ -123,7 +123,7 @@ export const menuItems = [
     icon: "heroicons-outline:clipboard-document-check",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/plans",
   },
   {
     title: "Reviews",

@@ -10,8 +10,6 @@ import {
 } from 'react-table';
 import GlobalFilter from './GlobalFilter';
 import TablePagination from '../TablePagination';
-import Button from '@/components/ui/Button';
-import Skeleton from 'react-loading-skeleton';
 
 const SkeletonRow = ({ colSpan }) => (
   <tr>
@@ -22,7 +20,6 @@ const SkeletonRow = ({ colSpan }) => (
     ))}
   </tr>
 );
-
 
 const BaseTable = ({
   title,
@@ -37,12 +34,14 @@ const BaseTable = ({
   setPageIndex,
   showGlobalFilter = true,
   actionButton,
+  onSelectionChange,
 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
 
-  // it will run when the pageIndex changes
+   useEffect(() => {
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -63,8 +62,7 @@ const BaseTable = ({
     }
   };
 
-  // Fetch data when the component mounts or when filter or pageIndex changes
-  useEffect(() => {
+ 
     fetchData();
   }, [filter, pageIndex, params]);
 
@@ -104,6 +102,17 @@ const BaseTable = ({
       ]);
     }
   );
+    // popup show
+useEffect(() => {
+  if (Object.keys(selectedRowIds).length > 0) {
+    setShowPopup(true);
+  }
+}, [selectedRowIds]);
+
+const handleClosePopup = () => {
+  setShowPopup(false);
+  toggleAllRowsSelected(false);
+};
 
   return (
     <div className="space-y-4">
@@ -112,7 +121,7 @@ const BaseTable = ({
         <div className='flex align-center'>
         {actionButton}
         {showGlobalFilter && (
-          <GlobalFilter filter={filter} setFilter={setFilter}  onSearch/> 
+          <GlobalFilter filter={filter} setFilter={setFilter} /> 
         )}
         </div>
       </div>
@@ -203,7 +212,6 @@ BaseTable.propTypes = {
   setFilter: PropTypes.func,
   pageIndex: PropTypes.number,
   setPageIndex: PropTypes.func,
-  actionButton: PropTypes.node,
 };
 
 export default BaseTable;

@@ -1,39 +1,47 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import TableData from "@/components/partials/table/TableData";
-import { WhatsappData } from "@/constant/table-data";
-import api, { GetEmailOtp } from "@/lib/api";
+'use client'
+import React from "react";
+import Card from "@/components/ui/Card";
+import BaseTable from "@/components/partials/table/BaseTable";
+import {useMemo, useCallback, useState, useTransition } from "react";
+import {GetEmailOtp} from "@/lib/api";
+
 
 const WhatsappOtp = () => {
-    const [whatsappDataState, setWhatsappDataState] = useState(WhatsappData);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [isPending, startTransition] = useTransition();
 
-    const WhatsappOtpColumns = [
-        { Header: "Emial", accessor: "email" },
-        { Header: "OTP", accessor: "otp" },
-        { Header: "Date", accessor: "date" },
-    ];
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await GetEmailOtp();
-                const mappedData = response.data.map((item) => ({
-                    email: item.identifier, 
-                    otp: item.otp,
-                    date: item.date,
-                }));
-                setWhatsappDataState(mappedData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
-    
-        fetchData();
-    }, []); 
-    
-    return (
-        <div>
-            <TableData title="Recent Customer OTPs" columns={WhatsappOtpColumns} data={whatsappDataState} />
-        </div>
+     const columns = useMemo(
+        () => [
+          { Header: "Email", accessor: "identifier" },
+          { Header: "OTP", accessor: "otp"},
+          { Header: "Date", accessor: "date",},
+        ],
+        []
+      );
+
+     // API call
+        const fetchEmailOtp = useCallback(
+          async ({ pageIndex }) => {
+             const params = {
+          page: pageIndex + 1,
+             }
+            const response = await GetEmailOtp(params);
+            return response;
+          },
+          []
+        );
+    return(
+        <Card>
+            <BaseTable
+            title="Recent Customer OTPs"
+            columns={columns}
+            apiCall={fetchEmailOtp}
+            params={{}}
+            pageIndex={pageIndex}
+            setPageIndex={(index) => startTransition(() => setPageIndex(index))}
+            showGlobalFilter={false}
+            />
+        </Card>
     );
 };
 
