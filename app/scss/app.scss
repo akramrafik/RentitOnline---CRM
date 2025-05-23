@@ -228,7 +228,9 @@
 .insights-row>div>div{
   min-width: 200px
 }
-
+.z-1000 {
+  z-index: 1000;
+}
 
 
 @layer components {

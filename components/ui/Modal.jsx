@@ -17,6 +17,7 @@ const Modal = ({
   uncontrol,
   label = "Basic Modal",
   labelClass,
+  icon,
   ref,
 }) => {
   const [showModal, setShowModal] = useState(false);
@@ -39,8 +40,9 @@ const Modal = ({
           <button
             type="button"
             onClick={openModal}
-            className={`btn ${labelClass}`}
+            className={`btn flex items-center gap-2 ${labelClass}`}
           >
+          {icon && <Icon icon={icon} className="text-base" />}
             {label}
           </button>
           <Transition appear show={showModal} as={Fragment}>
@@ -80,7 +82,7 @@ const Modal = ({
                   >
                     <Dialog.Panel
                       className={`w-full transform overflow-hidden rounded-md
-                 bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-alll ${className}`}
+                 bg-white text-left align-middle shadow-xl transition-alll ${className}`}
                     >
                       <div
                         className={`relative overflow-hidden py-4 px-5 text-white flex justify-between  ${themeClass}`}

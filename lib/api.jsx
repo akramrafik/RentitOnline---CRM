@@ -265,5 +265,34 @@ export const createCategory = async (params = {}) => {
     throw error;
   }
 };
+ // plan delete 
+  export const deletePlan = async (planId) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/plans/delete/${planId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting plan:", error);
+    throw error;
+  }
+};
+
+ // plan delete 
+ export const updatePlan = async (planId, planData) => {
+  try {
+    await csrf(); // optional, if CSRF protection is needed
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/plans/update/${planId}`,
+      planData // <-- this is important
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in updating plan:", error);
+    throw error;
+  }
+};
+
   
 export default api;

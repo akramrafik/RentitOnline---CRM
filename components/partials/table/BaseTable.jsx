@@ -1,5 +1,10 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle
+} from 'react';
 import PropTypes from 'prop-types';
 import {
   useTable,
@@ -21,7 +26,8 @@ const SkeletonRow = ({ colSpan }) => (
   </tr>
 );
 
-const BaseTable = ({
+// ✅ changed from regular component to forwardRef
+const BaseTable = forwardRef(({
   title,
   columns,
   apiCall,
@@ -35,13 +41,13 @@ const BaseTable = ({
   showGlobalFilter = true,
   actionButton,
   onSelectionChange,
-}) => {
+  refreshKey 
+}, ref) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
 
-   useEffect(() => {
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -50,7 +56,7 @@ const BaseTable = ({
         pageIndex,
         page: pageIndex + 1,
         pageSize,
-        search: filter, 
+        search: filter,
       };
       const response = await apiCall(queryParams);
       setData(response.data || []);
@@ -62,9 +68,13 @@ const BaseTable = ({
     }
   };
 
- 
-    fetchData();
-  }, [filter, pageIndex, params]);
+  useImperativeHandle(ref, () => ({
+    refetch: fetchData // ✅ expose refetch() to parent
+  }));
+
+  useEffect(() => {
+    fetchData(); // ✅ runs when filter, pageIndex, or params change
+  }, [filter, pageIndex, params, refreshKey]);
 
   const {
     getTableProps,
@@ -95,34 +105,34 @@ const BaseTable = ({
             <input type="checkbox" className="table-checkbox" {...getToggleAllRowsSelectedProps()} />
           ),
           Cell: ({ row }) => (
-            <input type="checkbox"  className="table-checkbox" {...row.getToggleRowSelectedProps()} />
+            <input type="checkbox" className="table-checkbox" {...row.getToggleRowSelectedProps()} />
           ),
         },
         ...columns,
       ]);
     }
   );
-    // popup show
-useEffect(() => {
-  if (Object.keys(selectedRowIds).length > 0) {
-    setShowPopup(true);
-  }
-}, [selectedRowIds]);
 
-const handleClosePopup = () => {
-  setShowPopup(false);
-  toggleAllRowsSelected(false);
-};
+  useEffect(() => {
+    if (Object.keys(selectedRowIds).length > 0) {
+      setShowPopup(true);
+    }
+  }, [selectedRowIds]);
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    toggleAllRowsSelected(false);
+  };
 
   return (
     <div className="space-y-4">
       <div className="md:flex justify-between items-center mb-6">
         <h4 className="card-title">{title}</h4>
         <div className='flex align-center'>
-        {actionButton}
-        {showGlobalFilter && (
-          <GlobalFilter filter={filter} setFilter={setFilter} /> 
-        )}
+          {actionButton}
+          {showGlobalFilter && (
+            <GlobalFilter filter={filter} setFilter={setFilter} />
+          )}
         </div>
       </div>
 
@@ -135,7 +145,7 @@ const handleClosePopup = () => {
                   <th
                     key={column.id}
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                     className="table-th whitespace-nowrap"
+                    className="table-th whitespace-nowrap"
                   >
                     {column.render('Header')}
                     <span className="ml-1">
@@ -157,7 +167,7 @@ const handleClosePopup = () => {
             {...getTableBodyProps()}
           >
             {loading ? (
-             [...Array(pageSize)].map((_, i) => (
+              [...Array(pageSize)].map((_, i) => (
                 <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 2 : 1)} />
               ))
             ) : page.length > 0 ? (
@@ -199,7 +209,7 @@ const handleClosePopup = () => {
       </div>
     </div>
   );
-};
+});
 
 BaseTable.propTypes = {
   title: PropTypes.string,
