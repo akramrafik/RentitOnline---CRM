@@ -82,7 +82,7 @@ const TablePagination = ({ currentPage, totalPages, onPageChange }) => {
             className={clsx(
               "w-8 h-8 rounded-full border flex items-center justify-center",
               page === currentPage
-                ? "bg-blue-600 text-white shadow"
+                ? "bg-primary-500 text-white shadow"
                 : "text-slate-700 hover:bg-gray-100"
             )}
           >

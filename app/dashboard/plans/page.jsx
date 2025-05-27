@@ -11,7 +11,6 @@ import Icon from "@/components/ui/Icon";
 import { getPlan, updatePlanStatus, deletePlan } from "@/lib/api";
 import ConfirmDialog from "@/components/partials/ConfirmPopup";
 import Modal from "@/components/ui/Modal";
-import Button from "@/components/ui/Button";
 import EditPlan from "./edit_plan";
 
 const PlanPage = () => {
@@ -208,7 +207,7 @@ const PlanPage = () => {
         activeModal={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         footerContent={null} >
-        <EditPlan id={editPlanId}/>
+        <EditPlan id={editTarget}/>
       </Modal>
       </>
   );

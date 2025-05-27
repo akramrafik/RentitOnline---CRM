@@ -282,10 +282,10 @@ export const createCategory = async (params = {}) => {
  // plan delete 
  export const updatePlan = async (planId, planData) => {
   try {
-    await csrf(); // optional, if CSRF protection is needed
+    await csrf(); 
     const response = await api.post(
       `${process.env.NEXT_PUBLIC_API_VERSION}/plans/update/${planId}`,
-      planData // <-- this is important
+      planData
     );
     return response.data;
   } catch (error) {
@@ -293,6 +293,20 @@ export const createCategory = async (params = {}) => {
     throw error;
   }
 };
+// package delete
+export const deletePackage = async (package_id) => {
+  try{
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/packages/delete/${package_id}`
+    );
+    return response.data;
+  }catch(error){
+    console.log('Error deleting package', error);
+    throw error;
+  }
+}
+// get package details
 
-  
+
 export default api;
