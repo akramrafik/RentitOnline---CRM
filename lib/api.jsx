@@ -308,5 +308,54 @@ export const deletePackage = async (package_id) => {
 }
 // get package details
 
+// get all banner types
+export const getAllBannerTypes = async () => {
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/banner-types`);
+    return response.data;
+  }catch(error){
+    console.error('error getiing banner types', error)
+    throw error;
+  }
+}
+
+// get all blogs 
+export const getAllBlogs = async () => {
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/blogs`);
+    return response.data;
+  }catch(error){
+    console.error('error getiing blogs', error)
+    throw error;
+  }
+}
+  // update blog status
+  export const updateBlogStatus = async (blogId) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/blogs/toggle-status/${blogId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category status:", error);
+    throw error;
+  }
+};
+// delete blog
+export const deleteBlog = async (planId) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/blogs/delete/${planId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting plan:", error);
+    throw error;
+  }
+};
 
 export default api;

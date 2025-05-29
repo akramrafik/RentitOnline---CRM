@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Textinput from "@/components/ui/Textinput";
 import ReactSelect from "@/components/partials/froms/ReactSelect";
-import { getPlan, updatePlan } from "@/lib/api";
+import { getAllBannerTypes } from "@/lib/api";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-const EditPlan = ({ id, onSuccess }) => {
+const EditBanner = ({ id, onSuccess }) => {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
-      title: "",
-      tag: "",
-      caption: "",
-      ad_cost: "",
+      name: "",
       status: "0",
+      view_mode: "",
+      columns: "", 
+      position: "",
+      
     },
   });
 
-  const status = watch("status")
+  const status = watch("status"); // watch current status value to sync ReactSelect
 
   useEffect(() => {
     if (!id) return;
@@ -27,15 +28,16 @@ const EditPlan = ({ id, onSuccess }) => {
     const fetchPlan = async () => {
       setLoading(true);
       try {
-        const response = await getPlan();
-        const plan = response.data.find((p) => p.id === id);
-        setSelectedPlan(plan);
+        const response = await getAllBannerTypes();
+        const banner = response.data.find((b) => b.id === id);
+        setSelectedPlan(banner);
         reset({
-          title: plan.name || "",
-          tag: plan.tag || "",
-          caption: plan.caption || "",
-          ad_cost: plan.ad_cost || "",
-          status: String(plan.status),
+          name: banner.name || "",
+          status: String(banner.status),
+          view_mode: banner.view_mode || "",
+          columns: banner.columns || "",
+          position: banner.position || "",
+         
         });
       } catch (error) {
         console.error("Error fetching plan:", error);
@@ -50,10 +52,10 @@ const EditPlan = ({ id, onSuccess }) => {
   const onSubmit = async (formData) => {
     try {
       const data = {
-        name: formData.title,
-        tag: formData.tag,
-        caption: formData.caption,
-        ad_cost: formData.ad_cost,
+        name: formData.name,
+        columns: formData.columns,
+        view_mode: formData.view_mode,
+        position: formData.position,
         status: formData.status,
       };
       await updatePlan(id, data);
@@ -66,7 +68,7 @@ const EditPlan = ({ id, onSuccess }) => {
   };
 
   if (loading || !selectedPlan) {
-    return <div>Loading plan data...</div>;
+    return <div>Loading Banner data...</div>;
   }
 
   const statusOptions = [
@@ -76,10 +78,10 @@ const EditPlan = ({ id, onSuccess }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <Textinput label="Title" name="title" register={register} />
-      <Textinput label="Tag" name="tag" register={register} />
-      <Textinput label="Caption" name="caption" register={register} />
-      <Textinput label="Price Per Ad" name="ad_cost" register={register} />
+      <Textinput label="Title" name="name" register={register} />
+      <Textinput label="Columns" name="columns" register={register} />
+      <Textinput label="View Mode" name="view_mode" register={register} />
+      <Textinput label="Position" name="position" register={register} />
 
       <ReactSelect
         label="Status"
@@ -96,5 +98,5 @@ const EditPlan = ({ id, onSuccess }) => {
   );
 };
 
-EditPlan.displayName = "EditPlan";
-export default EditPlan;
+EditBanner.displayName = "EditPlan";
+export default EditBanner;

@@ -159,14 +159,14 @@ export const menuItems = [
     icon: "heroicons-outline:clipboard-document-check",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/websitebannertypes",
   },
   {
     title: "BLogs",
      icon: "heroicons-outline:newspaper",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/blogs",
   },
   {
     title: "Page Contents",
