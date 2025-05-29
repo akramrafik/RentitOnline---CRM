@@ -241,7 +241,7 @@ export const menuItems = [
   },
 ];
 
-
+export const topMenu = [];
 
 
 export const notifications = [
