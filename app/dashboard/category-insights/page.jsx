@@ -23,7 +23,7 @@ export default function Page() {
   const hasData = locationData && locationData.length > 0;
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-1 sm:p-3 md:p-4 lg:p-5 space-y-4">
       <CategoryInsightFilter onDataUpdate={handleDataUpdate} />
       {hasData ? (
         <LocationCountsTable types={types} locations={locationData} loading={isLoading} currentPage={pagination.currentPage} totalPages={pagination.totalPages} />

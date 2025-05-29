@@ -18,10 +18,7 @@ const MobileFooter = () => {
          }
           `}
           >
-            <Icon icon="heroicons-outline:mail" />
-            <span className="absolute right-[5px] lg:top-0 -top-2 h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center justify-center rounded-full text-white z-[99]">
-              10
-            </span>
+            <Icon icon="heroicons-outline:home" />
           </span>
           <span
             className={` block text-[11px]
@@ -32,28 +29,64 @@ const MobileFooter = () => {
           }
           `}
           >
-            Messages
+            Dashboard
           </span>
         </div>
       </Link>
-      <Link
-        href="profile"
-        className="relative bg-white bg-no-repeat backdrop-filter backdrop-blur-[40px] rounded-full footer-bg dark:bg-slate-700 h-[65px] w-[65px] z-[-1] -mt-[40px] flex justify-center items-center"
-      >
-        <div className="h-[50px] w-[50px] rounded-full relative left-[0px] top-[0px] custom-dropshadow">
-          <img
-            src="/assets/images/users/user-1.jpg"
-            alt=""
-            className={` w-full h-full rounded-full
+      <Link href="chat">
+        <div>
+          <span
+            className={` relative cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center mb-1
+         ${
+           router.pathname === "chat"
+             ? "text-primary-500"
+             : "dark:text-white text-slate-900"
+         }
+          `}
+          >
+            <Icon icon="heroicons-outline:tag" />
+          </span>
+          <span
+            className={` block text-[11px]
           ${
-            router.pathname === "profile"
-              ? "border-2 border-primary-500"
-              : "border-2 border-slate-100"
+            router.pathname === "chat"
+              ? "text-primary-500"
+              : "text-slate-600 dark:text-slate-300"
           }
-              `}
-          />
+          `}
+          >
+            Ads
+          </span>
         </div>
       </Link>
+
+      <Link href="chat">
+        <div>
+          <span
+            className={` relative cursor-pointer rounded-full text-[20px] flex flex-col items-center justify-center mb-1
+         ${
+           router.pathname === "chat"
+             ? "text-primary-500"
+             : "dark:text-white text-slate-900"
+         }
+          `}
+          >
+            <Icon icon="heroicons-outline:rectangle-stack" />
+          </span>
+          <span
+            className={` block text-[11px]
+          ${
+            router.pathname === "chat"
+              ? "text-primary-500"
+              : "text-slate-600 dark:text-slate-300"
+          }
+          `}
+          >
+            Categories
+          </span>
+        </div>
+      </Link>
+      
       <Link href="notifications">
         <div>
           <span

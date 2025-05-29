@@ -74,7 +74,7 @@ const LeadsPage = () => {
       );
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-1 sm:p-3 md:p-4 lg:p-5 space-y-4">
     <button onClick={() => console.log(dates)}>
   check
 </button>

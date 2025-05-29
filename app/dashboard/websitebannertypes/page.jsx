@@ -100,7 +100,7 @@ const GetBannerTypes = () => {
               disabled={loading}
               prevIcon="heroicons-outline:check"
               nextIcon="heroicons-outline:x"
-              activeClass="bg-green-500"
+             
             />
           );
         },

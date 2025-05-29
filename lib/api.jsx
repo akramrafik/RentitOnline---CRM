@@ -6,7 +6,8 @@ const api = axios.create({
     headers: {
         "Accept": "Application/json",
         "x-api-key": "RENT_IT_ONLINE",
-        "Authorization": "Bearer " + Cookies.get('auth_token')
+        "Authorization": "Bearer " + Cookies.get('auth_token'),
+        "x-app-identifier": "ae.rentitonline.app"
     }
 });
 
@@ -23,13 +24,18 @@ api.interceptors.request.use(
 );
 
 
+let csrfTokenFetched = false;
+
 export const csrf = async () => {
-    try {
-        await api.get('/sanctum/csrf-cookie');
-    } catch (error) {
-        console.error('Error fetching CSRF token:', error);
-    }
+  if (csrfTokenFetched) return;
+  try {
+    await api.get('/sanctum/csrf-cookie');
+    csrfTokenFetched = true;
+  } catch (error) {
+    console.error('Error fetching CSRF token:', error);
+  }
 };
+
 
 export const login = async (email, password) => {
     try{
@@ -60,9 +66,8 @@ export const logout = async () => {
 // dashboard fetch
 export const getDashboardData = async () => {
     try {
-      await csrf(); // Assuming this is a CSRF token setup function
+      await csrf(); 
       const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/dashboard`);
-    //   console.log('Actual API response:', response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -347,7 +352,7 @@ export const getAllBlogs = async () => {
 // delete blog
 export const deleteBlog = async (planId) => {
   try {
-    await csrf(); // if you require CSRF before the call
+    await csrf();
     const response = await api.get(
       `${process.env.NEXT_PUBLIC_API_VERSION}/blogs/delete/${planId}`
     );

@@ -97,20 +97,20 @@ const BaseTable = forwardRef(({
     useSortBy,
     usePagination,
     useRowSelect,
-    (hooks) => {
-      hooks.visibleColumns.push((columns) => [
-        {
-          id: 'selection',
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <input type="checkbox" className="table-checkbox" {...getToggleAllRowsSelectedProps()} />
-          ),
-          Cell: ({ row }) => (
-            <input type="checkbox" className="table-checkbox" {...row.getToggleRowSelectedProps()} />
-          ),
-        },
-        ...columns,
-      ]);
-    }
+    // (hooks) => {
+    //   hooks.visibleColumns.push((columns) => [
+    //     {
+    //       id: 'selection',
+    //       Header: ({ getToggleAllRowsSelectedProps }) => (
+    //         <input type="checkbox" className="table-checkbox" {...getToggleAllRowsSelectedProps()} />
+    //       ),
+    //       Cell: ({ row }) => (
+    //         <input type="checkbox" className="table-checkbox" {...row.getToggleRowSelectedProps()} />
+    //       ),
+    //     },
+    //     ...columns,
+    //   ]);
+    // }
   );
 
   useEffect(() => {
@@ -139,29 +139,32 @@ const BaseTable = forwardRef(({
       <div className="overflow-x-auto w-full">
         <table className="min-w-[100%] divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
           <thead className="bg-slate-200 dark:bg-slate-700">
-            {headerGroups.map((headerGroup) => (
-              <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th
-                    key={column.id}
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="table-th whitespace-nowrap"
-                  >
-                    {column.render('Header')}
-                    <span className="ml-1">
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? ' 🔽'
-                          : ' 🔼'
-                        : ''}
-                    </span>
-                  </th>
-                ))}
-                {renderRowActions && <th className="px-4 py-2 border-b">Actions</th>}
-              </tr>
-            ))}
-          </thead>
-
+  {loading ? (
+    <SkeletonRow colSpan={columns.length + (renderRowActions ? 2 : 1)} />
+  ) : (
+    headerGroups.map((headerGroup) => (
+      <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
+        {headerGroup.headers.map((column) => (
+          <th
+            key={column.id}
+            {...column.getHeaderProps(column.getSortByToggleProps())}
+            className="table-th whitespace-nowrap"
+          >
+            {column.render('Header')}
+            <span className="ml-1">
+              {column.isSorted
+                ? column.isSortedDesc
+                  ? ' 🔽'
+                  : ' 🔼'
+                : ''}
+            </span>
+          </th>
+        ))}
+        {renderRowActions && <th className="px-4 py-2 border-b">Actions</th>}
+      </tr>
+    ))
+  )}
+</thead>
           <tbody
             className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
             {...getTableBodyProps()}

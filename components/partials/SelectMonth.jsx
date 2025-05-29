@@ -24,7 +24,6 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
         const response = await getDashboardData();
         const catList = response.data.categories || [];
         setCategories(catList);
-        console.log("Categories: ", catList)
         setCategoryOptions(
           catList.map(item => ({ value: item.id, label: item.name }))
         );
@@ -37,16 +36,13 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
 // subcategory options
   useEffect(() => {
     if (!selectedCategory || !categories.length) return;
-    console.log("Selected Category Value:", selectedCategory.value);
-    console.log("All Categories:", categories);
   
     const selectedCat = categories.find(
       cat => String(cat.id) == String(selectedCategory.value)
     );
-    console.log("Matched Category:", selectedCat);
+  
     if (!selectedCat) return;
     const children = selectedCat?.child_categories || [];
-    console.log("Children Categories:", children);
     setSubCategoryOptions(children.map(sub => ({
       value: sub.id,
       label: sub.name,
@@ -119,7 +115,6 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
         options={categoryOptions}
         value={selectedCategory}
         onChange={(option) => {
-    console.log("Category selected:", option);
     setSelectedCategory(option);
   }}
         isDisabled={loading}
