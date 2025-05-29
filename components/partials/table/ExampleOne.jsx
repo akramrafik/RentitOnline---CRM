@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { useState, useMemo } from "react";
-import { advancedTable } from "../../../constant/table-data";
+//import { advancedTable } from "../../../constant/table-data";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import Dropdown from "@/components/ui/Dropdown";
@@ -185,7 +185,7 @@ const IndeterminateCheckbox = React.forwardRef(
 
 const ExamapleOne = () => {
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => advancedTable, []);
+  //const data = useMemo(() => advancedTable, []);
 
   const tableInstance = useTable(
     {
