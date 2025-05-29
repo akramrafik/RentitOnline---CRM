@@ -242,6 +242,19 @@ export const menuItems = [
 ];
 
 export const topMenu = [];
+export const advancedTable = [
+  {
+    customer: {
+      name: "John Doe",
+      image: "/images/users/john.jpg"
+    },
+    date: "2025-05-10",
+    quantity: 1,
+    status: "paid",
+    action: ""
+  },
+  // ... more rows
+];
 
 
 export const notifications = [

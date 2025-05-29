@@ -1,6 +1,5 @@
 "use client"
-
-//import { advancedTable } from "@/constant/table-data";
+import { advancedTable } from "@/constant/table-data";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import Dropdown from "@/components/ui/Dropdown";
@@ -154,7 +153,7 @@ const actions = [
 
 const TransactionsTable = () => {
   const columns = useMemo(() => COLUMNS, []);
-  //const data = useMemo(() => advancedTable, []);
+  const data = useMemo(() => advancedTable, []);
 
   const tableInstance = useTable(
     {
