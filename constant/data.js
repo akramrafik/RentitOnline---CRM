@@ -162,7 +162,7 @@ export const menuItems = [
     link: "/dashboard/websitebannertypes",
   },
   {
-    title: "BLogs",
+    title: "Blogs",
      icon: "heroicons-outline:newspaper",
     isOpen: false,
     isHide: false,

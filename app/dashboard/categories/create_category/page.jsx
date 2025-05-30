@@ -6,7 +6,6 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'froala-editor/css/froala_editor.pkgd.min.css';
 import 'froala-editor/css/froala_style.min.css';
-
 import Card from '@/components/ui/Card';
 import Textinput from '@/components/ui/Textinput';
 import Textarea from '@/components/ui/Textarea';

@@ -1,61 +1,101 @@
 'use client';
-import React, { useState, useMemo, useCallback, useTransition  } from "react";
+import React, { useState, useMemo, useCallback, useTransition } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Swicth from "@/components/ui/Switch";
 import { toast } from "react-toastify";
 import BaseTable from "@/components/partials/table/BaseTable";
-import { useRouter } from "next/navigation";
 import debounce from "lodash.debounce";
 import Tooltip from "@/components/ui/Tooltip";
 import Icon from "@/components/ui/Icon";
-import { getAllBlogs, updateBlogStatus, deleteBlog } from "@/lib/api";
+import { getAllBlogs, updateBlogStatus, deleteBlog, getBlogById  } from "@/lib/api";
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/partials/ConfirmPopup";
-// import EditBanner from "./edit_banner";
 
 const GetBlogs = () => {
-  const [pageIndex, setPageIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [filter, setFilter] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [refreshKey, setRefreshKey] = useState(0);
-  const memoParams = useMemo(() => ({}), []);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [editTarget, setEditTarget] = useState(null);
-  const [editPlanId, setEditPlanId] = useState(null)
-  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [currentPageDataLength, setCurrentPageDataLength] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [editTarget, setEditTarget] = useState(null); 
+  const [loadingEditData, setLoadingEditData] = useState(false)
 
-  const handleEditClick = (row) => {
-    const blog_id = row.original.id;
-    router.push(`/dashboard/plans/${plan_id}/packages`);
+  // Initial page index from URL, default to 0
+  const initialPage = useMemo(() => {
+    const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
+    return isNaN(pageFromUrl) ? 0 : pageFromUrl - 1;
+  }, [searchParams]);
+
+  const [pageIndex, setPageIndex] = useState(initialPage);
+
+  const handlePageChange = (index) => {
+    if (index === pageIndex) return;
+    startTransition(() => {
+      setPageIndex(index);
+      const params = new URLSearchParams(searchParams.toString());
+      if (index > 0) {
+        params.set("page", index + 1);
+      } else {
+        params.delete("page");
+      }
+      router.replace(`?${params.toString()}`);
+    });
   };
 
-  const handleDelete = (plan) => {
-    setDeleteTarget(plan);
-  };
+ const handleEditClick = async (row) => {
+  const blogId = row.original.id;
+  setLoadingEditData(true);
+  router.push(`/dashboard/blogs/edit/${blogId}`);
 
-  const handleDeleteConfirm = async () => {
-    if (!deleteTarget) return;
-    try {   
-      await deleteBlog(deleteTarget.id);
-      toast.success("Plan deleted successfully");
-      setDeleteTarget(null);
-      startTransition(() => {
-        if (pageIndex === 0) {
-          setRefreshKey((k) => k + 1);
-        } else {
-          setPageIndex(0);
-        }
-      });
-    } catch (error) {
-      toast.error("Failed to delete plan");
-    }
+  // try {
+  //   const blogData = await getBlogById({ id: blogId });
+  //   setEditTarget(blogData);
+  //   // setEditModalOpen(true);
+  // } catch (error) {
+  //   toast.error("Failed to load blog data");
+  //   console.error(error);
+  // } finally {
+  //   setLoadingEditData(false);
+  // }
+};
+
+
+
+  const handleDelete = (blog) => {
+    setDeleteTarget(blog);
   };
 
   const handleDeleteCancel = () => {
     setDeleteTarget(null);
   };
+
+  // * CHANGED: useCallback + disabling to prevent multiple calls
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteBlog(deleteTarget.id);
+      toast.success("Blog deleted successfully");
+      setDeleteTarget(null);
+
+      startTransition(() => {
+        if (currentPageDataLength === 1 && pageIndex > 0) {
+          setPageIndex(pageIndex - 1);
+        } else {
+          setRefreshKey((k) => k + 1);
+        }
+      });
+    } catch (error) {
+      toast.error("Failed to delete blog");
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, currentPageDataLength, pageIndex]);
 
   const columns = useMemo(
     () => [
@@ -63,13 +103,18 @@ const GetBlogs = () => {
       {
         Header: "Image",
         accessor: "image1",
-         Cell: ({ value }) => (
-    <img
-      src={value}
-      alt="Banner"
-      style={{ width: "60px", height: "auto", objectFit: "cover", borderRadius: "4px" }}
-    />
-  ),
+        Cell: ({ value }) => (
+          <img
+            src={value}
+            alt="Banner"
+            style={{
+              width: "60px",
+              height: "auto",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
+          />
+        ),
       },
       {
         Header: "Title",
@@ -79,9 +124,7 @@ const GetBlogs = () => {
         Header: "Status",
         accessor: "status",
         Cell: ({ row }) => {
-          const [status, setStatus] = useState(() =>
-            Boolean(Number(row.original.status))
-          );
+          const [status, setStatus] = useState(Boolean(Number(row.original.status)));
           const [loading, setLoading] = useState(false);
 
           const handleToggle = async () => {
@@ -120,35 +163,31 @@ const GetBlogs = () => {
         Cell: ({ row }) => (
           <div className="flex gap-2">
             <Tooltip content="Edit" placement="top" arrow animation="shift-away">
-              <button
-                className="action-btn"
-                onClick={() => handleEditClick (row)}
-              >
+              <button className="action-btn" onClick={() => handleEditClick(row)} type="button">
                 <Icon icon="heroicons:pencil-square" />
               </button>
             </Tooltip>
-            <Tooltip content="Delete" placement="top" arrow animation="shift-away" theme="danger">
+            <Tooltip
+              content="Delete"
+              placement="top"
+              arrow
+              animation="shift-away"
+              theme="danger"
+            >
               <button
+              type="button"
                 className="action-btn"
                 onClick={() => handleDelete(row.original)}
-                disabled={loading}
+                disabled={deleting}
               >
                 <Icon icon="heroicons:trash" />
-              </button>
-            </Tooltip>
-            <Tooltip content="Packages" placement="top" arrow animation="shift-away">
-              <button
-                className="action-btn"
-                onClick={() => handlePackagesClick(row)}
-              >
-                <Icon icon="heroicons:circle-stack" />
               </button>
             </Tooltip>
           </div>
         ),
       },
     ],
-    [loading]
+    [deleting]
   );
 
   const debouncedSetFilter = useMemo(
@@ -162,43 +201,43 @@ const GetBlogs = () => {
     []
   );
 
-  const fetchBannerType = useCallback(async ({ pageIndex }) => {
-    const params = { page: pageIndex + 1 };
-    const response = await getAllBannerTypes(params);
-    return response;
+  const fetchBlogs = useCallback(async ({ pageIndex }) => {
+    try {
+      return await getAllBlogs({
+        page: pageIndex + 1,
+      });
+    } catch (error) {
+      console.error("Failed to fetch blogs:", error);
+      return { data: [], total: 0 };
+    }
   }, []);
 
   return (
     <>
-    <Card>
-      <BaseTable
-        title="Blogs"
-        columns={columns}
-        apiCall={getAllBlogs}
-        params={memoParams}
-        pageIndex={pageIndex}
-        setFilter={debouncedSetFilter}
-        setPageIndex={(index) => startTransition(() => setPageIndex(index))}
-        filter={filter}
-        showGlobalFilter={false}
-        refreshKey={refreshKey}
-      />
-    </Card>
-     <ConfirmDialog
+      <Card>
+        <BaseTable
+          title="Blogs"
+          columns={columns}
+          apiCall={fetchBlogs}
+          params={{}}
+          setPageIndex={handlePageChange}
+          pageIndex={pageIndex}
+          setFilter={debouncedSetFilter}
+          filter={filter}
+          showGlobalFilter={false}
+          refreshKey={refreshKey}
+          onDataFetched={(data) => setCurrentPageDataLength(data.length)}
+        />
+      </Card>
+      <ConfirmDialog
         isOpen={!!deleteTarget}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Plan"
+        title="Delete Blog"
         message={`Are you sure you want to delete the blog "${deleteTarget?.id}"? This action cannot be undone.`}
+        confirmDisabled={deleting} // * CHANGED - disable confirm button during delete
       />
-    <Modal
-        // title={`edit ${editTarget}`}
-        activeModal={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        footerContent={null} >
-        {/* <EditBanner id={editTarget}/> */}
-      </Modal>
-      </>
+    </>
   );
 };
 

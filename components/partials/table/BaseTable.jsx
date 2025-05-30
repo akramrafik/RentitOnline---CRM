@@ -144,27 +144,32 @@ const BaseTable = forwardRef(({
   ) : (
     headerGroups.map((headerGroup) => (
       <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-        {headerGroup.headers.map((column) => (
-          <th
-            key={column.id}
-            {...column.getHeaderProps(column.getSortByToggleProps())}
-            className="table-th whitespace-nowrap"
-          >
-            {column.render('Header')}
-            <span className="ml-1">
-              {column.isSorted
-                ? column.isSortedDesc
-                  ? ' 🔽'
-                  : ' 🔼'
-                : ''}
-            </span>
-          </th>
-        ))}
+        {headerGroup.headers.map((column) => {
+          const headerProps = column.getHeaderProps(column.getSortByToggleProps());
+          const { key, ...rest } = headerProps;
+          return (
+            <th
+              key={key}
+              {...rest}
+              className="table-th whitespace-nowrap"
+            >
+              {column.render('Header')}
+              <span className="ml-1">
+                {column.isSorted
+                  ? column.isSortedDesc
+                    ? ' 🔽'
+                    : ' 🔼'
+                  : ''}
+              </span>
+            </th>
+          );
+        })}
         {renderRowActions && <th className="px-4 py-2 border-b">Actions</th>}
       </tr>
     ))
   )}
 </thead>
+
           <tbody
             className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
             {...getTableBodyProps()}
@@ -178,11 +183,20 @@ const BaseTable = forwardRef(({
                 prepareRow(row);
                 return (
                   <tr key={row.id} {...row.getRowProps()}>
-                    {row.cells.map((cell) => (
-                      <td key={cell.column.id} {...cell.getCellProps()} className="table-td whitespace-nowrap">
-                        {cell.render('Cell')}
-                      </td>
-                    ))}
+                    {row.cells.map((cell) => {
+  const cellProps = cell.getCellProps();
+  const { key, ...rest } = cellProps;
+  return (
+    <td
+      key={key}  // explicit key from cellProps
+      {...rest}
+      className="table-td whitespace-nowrap"
+    >
+      {cell.render('Cell')}
+    </td>
+  );
+})}
+
                     {renderRowActions && (
                       <td className="px-4 py-2 border-b">
                         {renderRowActions(row.original)}

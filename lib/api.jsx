@@ -326,16 +326,29 @@ export const getAllBannerTypes = async () => {
 }
 
 // get all blogs 
-export const getAllBlogs = async () => {
+export const getAllBlogs = async (params = {}) => {
   try{
     await csrf();
-    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/blogs`);
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/blogs?${query}`);
     return response.data;
   }catch(error){
     console.error('error getiing blogs', error)
     throw error;
   }
 }
+// get all blogs 
+export const getBlogById = async ({ blog_id }) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/blogs/show/${blog_id}`);
+    return response;
+  } catch (error) {
+    console.error('Error getting blog by ID:', error);
+    throw error;
+  }
+};
+
   // update blog status
   export const updateBlogStatus = async (blogId) => {
   try {
