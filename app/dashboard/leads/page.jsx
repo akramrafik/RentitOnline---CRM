@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useState, useMemo, useCallback,useTransition } from 'react';
 import { useSearchParams, useRouter } from "next/navigation";
-import LeadTable from './table';
 import LeadFilter from './filter';
 import { getLeads } from '@/lib/api';
 import Card from '@/components/ui/Card';
@@ -91,6 +90,7 @@ const LeadsPage = () => {
         apiCall={fetchLeads}
         params={{}}
         pageIndex={pageIndex}
+        showGlobalFilter={false}
          setPageIndex={(index) => startTransition(() => setPageIndex(index))}
          setFilter={debouncedSetFilter}
          filter={filter}

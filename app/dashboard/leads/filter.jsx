@@ -12,7 +12,7 @@ const sourceOptions = [
   { value: 'whatsapp', label: 'WhatsApp' },
 ];
 
-const LeadFilter = ({selectedSource, setSelectedSource, selectedCategory, setSelectedCategory, dates, setDates}) => {
+const LeadFilter = ({selectedSource, setSelectedSource, selectedCategory, setSelectedCategory, dates, setDates, onSearch}) => {
   const [categoryOptions, setCategoryOptions] = useState([]);
 
   const handleFilterChange = () => {
@@ -36,6 +36,10 @@ const handleSourceChange = (option) => {
   setSelectedSource(option?.value);
   console.log('Selected source value:', option?.value);
 };
+ const handleInputChange = (e) => {
+    const value = e.target.value;
+    if (onSearch) onSearch(value);
+  };
   // const handleClear = () => {
   //   setSource('all');
   //   setCategory('');
@@ -92,14 +96,12 @@ useEffect(() => {
             placeholder="Select Date Range"
           />
         </div>
-        {/* <div className="flex items-center">
-          <button className="btn btn-dark" onClick={handleFilterChange}>
-            Apply Filters
-          </button>
-          <button className="btn btn-light ml-2" onClick={handleClear}>
-            Clear Filters
-          </button>
-        </div> */}
+        <input
+            type="text"
+            className="border px-3 py-2 rounded w-full"
+            placeholder="Search by name..."
+            onChange={handleInputChange}
+          />
       </div>
     </Card>
   );
