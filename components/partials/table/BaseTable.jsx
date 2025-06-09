@@ -56,7 +56,7 @@ const BaseTable = forwardRef(({
         pageIndex,
         page: pageIndex + 1,
         pageSize,
-        search: filter,
+        q : filter,
       };
       const response = await apiCall(queryParams);
       setData(response.data || []);
@@ -69,11 +69,11 @@ const BaseTable = forwardRef(({
   };
 
   useImperativeHandle(ref, () => ({
-    refetch: fetchData // ✅ expose refetch() to parent
+    refetch: fetchData 
   }));
 
   useEffect(() => {
-    fetchData(); // ✅ runs when filter, pageIndex, or params change
+    fetchData();
   }, [filter, pageIndex, params, refreshKey]);
 
   const {
@@ -126,7 +126,7 @@ const BaseTable = forwardRef(({
 
   return (
     <div className="space-y-4">
-      <div className="md:flex justify-between items-center mb-6">
+      <div className="md:flex justify-between items-center">
         <h4 className="card-title">{title}</h4>
         <div className='flex align-center'>
           {actionButton}

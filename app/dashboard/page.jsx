@@ -38,7 +38,10 @@ const CrmPage = () => {
       <div className="grid grid-cols-12 gap-5">
         {/* Top Summary Cards */}
         <div className="col-span-12 space-y-5">
+         <Card>
+        
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+         
             {isLoading ? (
               <>
                 <Card><SkeletonBox height="h-20" /></Card>
@@ -49,9 +52,10 @@ const CrmPage = () => {
             ) : (
               <GroupChart3 data={data} />
             )}
+           
           </div>
-        </div>
-
+ </Card>
+ </div>
         {/* Overview Area Chart */}
         <div className="col-span-12 lg:col-span-8 space-y-5">
           <Card title="Overview">

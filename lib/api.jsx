@@ -375,5 +375,34 @@ export const deleteBlog = async (planId) => {
     throw error;
   }
 };
+// ads api
+export const getAds = async (adId = '', query = {}) => {
+  try {
+    await csrf();
+    const url = adId
+      ? `${process.env.NEXT_PUBLIC_API_VERSION}/ads/${adId}`
+      : `${process.env.NEXT_PUBLIC_API_VERSION}/ads`;
+
+    const response = await api.get(url, { params: query });
+    return response.data;
+  } catch (error) {
+    console.error("Error getting ads", error);
+    throw error;
+  }
+};
+// adstatus change
+ export const updateAdStatus = async (adId,status) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/ads/change-status/${adId}`,
+      { status }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category status:", error);
+    throw error;
+  }
+};
 
 export default api;

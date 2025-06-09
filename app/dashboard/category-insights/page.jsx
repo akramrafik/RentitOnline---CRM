@@ -26,7 +26,7 @@ export default function Page() {
     <div className="p-1 sm:p-3 md:p-4 lg:p-5 space-y-4">
       <CategoryInsightFilter onDataUpdate={handleDataUpdate} />
       {hasData ? (
-        <LocationCountsTable types={types} locations={locationData} loading={isLoading} currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
+       <LocationCountsTable types={types} locations={locationData} loading={isLoading} currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
       ) : (
         <div className="mt-6 text-gray-500">No data found.</div>
       )}
