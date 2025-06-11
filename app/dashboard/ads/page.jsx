@@ -13,6 +13,9 @@ import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import ReactSelect from "@/components/partials/froms/ReactSelect";
 import StatusCell from "./statuscell";
+import CommonDropdown from "@/components/ui/Common-dropdown";
+import FilterComp from "./filter";
+import { formatDate } from "@fullcalendar/core";
 
 const GetAds = () => {
   const searchParams = useSearchParams();
@@ -26,17 +29,44 @@ const GetAds = () => {
   const [parentId, setParentId] = useState("");
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // ✅ Added ref to prevent feedback loop
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const isInternalUpdate = useRef(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [emirateId, setEmirateId] = useState("");
 
-  // ✅ Set initial state from URL only when not triggered by internal change
+ const HandleClearFilter = () =>{
+   setFilter("");
+  setSelectedCategory(null);
+  setSelectedSubCategory(null);
+  setSelectedStatus(null);
+  setSelectedPlan(null);
+  setSelectedLocation(null);
+  setStartDate(null);
+  setEndDate(null);
+  setPageIndex(0);
+ }
+
+ const hasActiveFilter =
+  !!filter ||
+  !!selectedCategory ||
+  !!selectedSubCategory ||
+  !!selectedStatus ||
+  !!selectedPlan ||
+  !!selectedLocation ||
+  !!startDate ||
+  !!endDate;
+
+  // Set initial state from URL only when not triggered by internal change
   useEffect(() => {
     if (isInternalUpdate.current) {
       isInternalUpdate.current = false; // reset flag
       return;
     }
-
     const initialSearch = searchParams.get("q") || "";
     const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
     const initialPage = isNaN(pageFromUrl) ? 0 : pageFromUrl - 1;
@@ -46,7 +76,7 @@ const GetAds = () => {
     setHasInitialized(true);
   }, [searchParams]);
 
-  // ✅ Sync state to URL with safeguard
+  // Sync state to URL with safeguard
   useEffect(() => {
     if (!hasInitialized) return;
 
@@ -73,10 +103,19 @@ const GetAds = () => {
     []
   );
 
-  // ✅ Memoized params to prevent re-renders
-  const memoizedParams = useMemo(() => ({ type }), [type]);
+  // Memoized params to prevent re-renders
+  const memoizedParams = useMemo(() => ({ 
+    category: selectedCategory?.value || "",
+  subcategory: selectedSubCategory?.value || "",
+  filter: selectedStatus?.value || "",
+  plan: selectedPlan?.value || "",
+  location : selectedLocation?.city || "",
+  start_date: startDate ? formatDate(startDate, { month: "2-digit", day: "2-digit", year: "numeric" }) : "",
+  end_date: endDate ? formatDate(endDate, { month: "2-digit", day: "2-digit", year: "numeric" }) : "",
+   }), [ selectedCategory, selectedSubCategory, selectedStatus, selectedPlan, startDate, endDate, selectedLocation]);
 
-  // ✅ Table columns
+
+  // Table columns
   const columns = useMemo(
     () => [
       { Header: "Id", accessor: "id" },
@@ -154,10 +193,11 @@ const GetAds = () => {
   );
 
 const fetchAds = useCallback(
-  async ({ pageIndex, q }) => {  
+  async ({ pageIndex, q }) => {
     const params = {
       page: pageIndex + 1,
       ...(q ? { q } : {}),
+       ...memoizedParams,
     };
 
     try {
@@ -167,8 +207,9 @@ const fetchAds = useCallback(
       return { data: [], total: 0 };
     }
   },
-  []
+  [memoizedParams]
 );
+
 
 
   return (
@@ -183,31 +224,62 @@ const fetchAds = useCallback(
             apiCall={fetchAds}
             pageIndex={pageIndex}
             setPageIndex={(index) => startTransition(() => setPageIndex(index))}
-            params={memoizedParams} // ✅ use memoized params
+            params={memoizedParams}
             title="Ads"
             showGlobalFilter={true}
             actionButton={
-              <div className="space-xy-5">
+              <div className="space-xy-5 flex">
                 <Button
+                onClick={HandleClearFilter}
+                disabled={!hasActiveFilter}
                   icon="heroicons-outline:refresh"
                   text="Clear filter"
-                  className={`bg-white text-primary-500 ${
-                    !filter && !type && !parentId ? "opacity-50 cursor-not-allowed" : ""
+                 className={`bg-white text-primary-500 py-1 mx-0 ${
+    !hasActiveFilter ? "opacity-50 cursor-not-allowed" : ""
                   }`}
-                  onClick={() => {
-                    setFilter("");
-                    setType("");
-                    setParentId("");
-                    setPageIndex(0);
-                  }}
-                  disabled={!filter && !type && !parentId}
                 />
+               
                 <Button
                   icon="heroicons-outline:plus"
                   text="Add New"
-                  className="bg-primary-500 text-white"
-                  link="/dashboard/categories/create_category"
+                  className="bg-primary-500 text-white btn-sm h-10 my-0"
                 />
+                 <CommonDropdown
+                  contentWrapperClass="rounded-lg filter-panel"
+                  header="Filters"
+  label="Filter"
+  split={true}
+  labelClass="btn-sm h-10 my-0 btn-outline-light"
+>
+<FilterComp
+selectedCategory={selectedCategory}
+      setSelectedCategory={setSelectedCategory}
+      selectedSubCategory={selectedSubCategory}
+      setSelectedSubCategory={setSelectedSubCategory}
+      selectedStatus={selectedStatus}
+      setSelectedStatus={setSelectedStatus}
+      selectedPlan={selectedPlan}
+      setSelectedPlan={setSelectedPlan}
+        selectedLocation={selectedLocation}
+  setSelectedLocation={setSelectedLocation}
+      startDate={startDate}
+      setStartDate={setStartDate}
+      endDate={endDate}
+      setEndDate={setEndDate}
+    setFilter={setFilter}
+    setType={setType}
+    setParentId={setParentId}
+    emirateId={emirateId}
+  setEmirateId={setEmirateId}
+    reset={() => {
+      setFilter('');
+      setType('');
+      setParentId('');
+      setPageIndex(0);
+    }}
+  />
+</CommonDropdown>
+
               </div>
             }
           />

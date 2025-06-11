@@ -2,9 +2,11 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Icon from "@/components/ui/Icon";
+import { useNotification } from "@/app/context/NotificationContext";
 
 const MobileFooter = () => {
   const router = useRouter();
+   const {unreadCount} = useNotification();
   return (
     <div className="bg-white bg-no-repeat custom-dropshadow footer-bg dark:bg-slate-700 flex justify-around items-center backdrop-filter backdrop-blur-[40px] fixed left-0 w-full z-[9999] bottom-0 py-[12px] px-4">
       <Link href="chat">
@@ -100,7 +102,7 @@ const MobileFooter = () => {
           >
             <Icon icon="heroicons-outline:bell" />
             <span className="absolute right-[17px] lg:top-0 -top-2 h-4 w-4 bg-red-500 text-[8px] font-semibold flex flex-col items-center justify-center rounded-full text-white z-[99]">
-              2
+              {unreadCount}
             </span>
           </span>
           <span

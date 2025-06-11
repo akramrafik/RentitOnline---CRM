@@ -212,7 +212,7 @@ export const menuItems = [
      icon: "heroicons-outline:bell",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/notifications",
   },
   {
     isHeadr: true,

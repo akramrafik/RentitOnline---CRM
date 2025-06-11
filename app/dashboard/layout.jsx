@@ -24,6 +24,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import useNavbarType from "@/hooks/useNavbarType";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthProvider } from "../context/AuthContext";
+import { NotificationProvider } from "../context/NotificationContext";
 export default function RootLayout({ children }) {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
@@ -62,6 +63,7 @@ export default function RootLayout({ children }) {
 
   return (
     <AuthProvider>
+    <NotificationProvider>
     <div
       dir={isRtl ? "rtl" : "ltr"}
       className={`app-warp    ${isDark ? "dark" : "light"} ${
@@ -139,6 +141,7 @@ export default function RootLayout({ children }) {
         <Footer className={width > breakpoints.xl ? switchHeaderClass() : ""} />
       )}
     </div>
+    </NotificationProvider>
     </AuthProvider>
   );
 }

@@ -42,7 +42,7 @@ const Profile = () => {
           router.push('/login');
         } catch (error) {
           console.error('Error during logout:', error);
-          alert('Logout failed. Please try again.');  // Handle logout error
+          alert('Logout failed. Please try again.'); 
         }
       },
     }

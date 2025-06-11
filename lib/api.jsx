@@ -62,7 +62,28 @@ export const logout = async () => {
     Cookies.remove('auth_token')
     return res;
 };
-
+// get notifications
+export const getNotifications = async (queryParams = {}) => {
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/user/notifications`,{params: queryParams,});
+    return response.data;
+  }catch (error){
+    console.error("error getting notifications:", error);
+    throw error;
+  }
+}
+//get notification count 
+export const getUnreadNotificationCount = async () => {
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/user/get-un-notifications-count`);
+    return response.data;
+  }catch (error){
+    console.error("error getting notifications:", error);
+    throw error;
+  }
+}
 // dashboard fetch
 export const getDashboardData = async () => {
     try {

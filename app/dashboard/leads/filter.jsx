@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Card from '@/components/ui/Card';
 import ReactSelect from '@/components/partials/froms/ReactSelect';
+import ReactSelectFilter from '@/components/partials/froms/ReactSelectFIlter';
 import Flatpickr from 'react-flatpickr';
 import { getCategories } from '@/lib/api';
 
@@ -36,10 +37,10 @@ const handleSourceChange = (option) => {
   setSelectedSource(option?.value);
   console.log('Selected source value:', option?.value);
 };
- const handleInputChange = (e) => {
-    const value = e.target.value;
-    if (onSearch) onSearch(value);
-  };
+//  const handleInputChange = (e) => {
+//     const value = e.target.value;
+//     if (onSearch) onSearch(value);
+//   };
   // const handleClear = () => {
   //   setSource('all');
   //   setCategory('');
@@ -69,22 +70,21 @@ useEffect(() => {
   }, []);
 
   return (
-    <Card>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div>
-          <ReactSelect
+          <ReactSelectFilter
             options = {sourceOptions}
-            value = {selectedSource}
+            value = {sourceOptions.find(opt => opt.value === selectedSource)}
             onChange = {handleSourceChange}
             placeholder = "Select Source"
           />
         </div>
         <div>
-          <ReactSelect
+          <ReactSelectFilter
           options = {categoryOptions}
           onChange = {handleCategoryChange}
-          value = {selectedCategory}
-          placeholder = "Select Category"
+          value = {categoryOptions.find(opt => opt.value === selectedCategory)}
+          placeholder = "Categories"
           />
         </div>
         <div>
@@ -96,14 +96,7 @@ useEffect(() => {
             placeholder="Select Date Range"
           />
         </div>
-        <input
-            type="text"
-            className="border px-3 py-2 rounded w-full"
-            placeholder="Search by name..."
-            onChange={handleInputChange}
-          />
       </div>
-    </Card>
   );
 };
 

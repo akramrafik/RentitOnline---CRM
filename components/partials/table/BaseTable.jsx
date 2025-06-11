@@ -125,8 +125,8 @@ const BaseTable = forwardRef(({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="md:flex justify-between items-center">
+    <div className="">
+      <div className="md:flex justify-between items-center mb-5">
         <h4 className="card-title">{title}</h4>
         <div className='flex align-center'>
           {actionButton}

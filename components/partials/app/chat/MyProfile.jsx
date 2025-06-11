@@ -110,9 +110,6 @@ const MyProfile = () => {
                 `}
                   ></span>
                 </div>
-                <span className="block text-slate-600 dark:text-slate-300 text-sm">
-                  Jane Cooper
-                </span>
                 <span className="block text-slate-500 dark:text-slate-300 text-xs">
                   Admin
                 </span>
