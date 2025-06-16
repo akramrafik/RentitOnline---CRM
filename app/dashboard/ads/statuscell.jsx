@@ -34,9 +34,10 @@ const StatusCell = ({ adId, statusLabel, onStatusChange }) => {
       ...base,
       minHeight: "30px",
       height: "30px",
-      width: "120px",
-      fontSize: "14px",
+      minWidth: "120px",
+      fontSize: "13px",
       padding: "0 4px",
+      width: "auto",
       borderColor: TAILWIND_COLORS[currentOption.color],
       boxShadow: state.isFocused
         ? `0 0 0 1px ${TAILWIND_COLORS[currentOption.color]}`
@@ -90,14 +91,14 @@ const StatusCell = ({ adId, statusLabel, onStatusChange }) => {
       onChange={handleStatusChange}
       isSearchable={false}
       styles={customStyles}
-      classNamePrefix="react-select"
+      classNamePrefix="react-select min-w-[120px]"
       getOptionLabel={(e) => (
         <div className="flex items-center gap-2">
           <span
-            className={`w-2 h-2 rounded-full`}
+            className={`w-5 h-2 rounded-full`}
             style={{ backgroundColor: TAILWIND_COLORS[e.color] }}
           />
-          <span className="text-sm font-medium">{e.label}</span>
+          <span className="text-sm font-medium min-[120px]:">{e.label}</span>
         </div>
       )}
       formatOptionLabel={(e) => (

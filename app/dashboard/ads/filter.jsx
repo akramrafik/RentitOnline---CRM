@@ -135,7 +135,7 @@ const FilterComp = ({selectedCategory, setSelectedCategory, selectedSubCategory,
       <Flatpickr
   value={startDate}
   onChange={(date) => setStartDate(date[0])}
-  options={{ dateFormat: "Y-m-d" }}
+  options={{ dateFormat: "d-m-Y" }}
   render={(props, ref) => (
     <input
       {...props}
@@ -149,7 +149,7 @@ const FilterComp = ({selectedCategory, setSelectedCategory, selectedSubCategory,
 <Flatpickr
   value={endDate}
   onChange={(date) => setEndDate(date[0])}
-  options={{ dateFormat: "Y-m-d" }}
+  options={{ dateFormat: "d-m-Y" }}
   render={(props, ref) => (
     <input
       {...props}

@@ -63,8 +63,9 @@
     "simple-icons": "^14.12.1",
     "simplebar-react": "^3.2.1",
     "sort-by": "^0.0.2",
-    "swiper": "^9.1.0",
+    "swiper": "^9.4.1",
     "uuidv4": "^6.2.13",
+    "yet-another-react-lightbox": "^3.23.2",
     "yup": "^1.0.2"
   },
   "devDependencies": {

@@ -11,7 +11,7 @@ import {
   useSortBy,
   usePagination,
   useGlobalFilter,
-  useRowSelect
+  useRowSelect 
 } from 'react-table';
 import GlobalFilter from './GlobalFilter';
 import TablePagination from '../TablePagination';
@@ -26,7 +26,7 @@ const SkeletonRow = ({ colSpan }) => (
   </tr>
 );
 
-// ✅ changed from regular component to forwardRef
+//  forwardRef component
 const BaseTable = forwardRef(({
   title,
   columns,
@@ -41,7 +41,8 @@ const BaseTable = forwardRef(({
   showGlobalFilter = true,
   actionButton,
   onSelectionChange,
-  refreshKey 
+  refreshKey,
+  rowSelect = true, 
 }, ref) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +57,7 @@ const BaseTable = forwardRef(({
         pageIndex,
         page: pageIndex + 1,
         pageSize,
-        q : filter,
+        q: filter,
       };
       const response = await apiCall(queryParams);
       setData(response.data || []);
@@ -69,12 +70,48 @@ const BaseTable = forwardRef(({
   };
 
   useImperativeHandle(ref, () => ({
-    refetch: fetchData 
+    refetch: fetchData
   }));
 
   useEffect(() => {
     fetchData();
   }, [filter, pageIndex, params, refreshKey]);
+
+  //  dynamically build plugins based on rowSelect
+  const plugins = [
+    useGlobalFilter,
+    useSortBy,
+    usePagination,
+  ];
+  if (rowSelect) plugins.push(useRowSelect);
+
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+      initialState: { pageIndex: 0, pageSize },
+      manualPagination: true,
+      pageCount: totalPages,
+    },
+    ...plugins,
+    (hooks) => {
+      //  only inject selection column if rowSelect is enabled
+      if (rowSelect) {
+        hooks.visibleColumns.push((columns) => [
+          {
+            id: 'selection',
+            Header: ({ getToggleAllRowsSelectedProps }) => (
+              <input type="checkbox" className="table-checkbox" {...getToggleAllRowsSelectedProps()} />
+            ),
+            Cell: ({ row }) => (
+              <input type="checkbox" className="table-checkbox" {...row.getToggleRowSelectedProps()} />
+            ),
+          },
+          ...columns,
+        ]);
+      }
+    }
+  );
 
   const {
     getTableProps,
@@ -85,44 +122,27 @@ const BaseTable = forwardRef(({
     selectedFlatRows,
     state: { selectedRowIds },
     toggleAllRowsSelected,
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0, pageSize },
-      manualPagination: true,
-      pageCount: totalPages,
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination,
-    useRowSelect,
-    // (hooks) => {
-    //   hooks.visibleColumns.push((columns) => [
-    //     {
-    //       id: 'selection',
-    //       Header: ({ getToggleAllRowsSelectedProps }) => (
-    //         <input type="checkbox" className="table-checkbox" {...getToggleAllRowsSelectedProps()} />
-    //       ),
-    //       Cell: ({ row }) => (
-    //         <input type="checkbox" className="table-checkbox" {...row.getToggleRowSelectedProps()} />
-    //       ),
-    //     },
-    //     ...columns,
-    //   ]);
-    // }
-  );
+  } = tableInstance;
 
+  // only trigger popup if rowSelect is enabled
   useEffect(() => {
-    if (Object.keys(selectedRowIds).length > 0) {
+    if (rowSelect && Object.keys(selectedRowIds).length > 0) {
       setShowPopup(true);
     }
-  }, [selectedRowIds]);
+  }, [selectedRowIds, rowSelect]);
 
   const handleClosePopup = () => {
     setShowPopup(false);
     toggleAllRowsSelected(false);
   };
+
+  // row select toolbar
+  useEffect(() => {
+  if (rowSelect && onSelectionChange) {
+    const selectedData = selectedFlatRows.map((row) => row.original);
+    onSelectionChange(selectedData);
+  }
+}, [selectedRowIds, rowSelect]);
 
   return (
     <div className="">
@@ -139,36 +159,36 @@ const BaseTable = forwardRef(({
       <div className="overflow-x-auto w-full">
         <table className="min-w-[100%] divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
           <thead className="bg-slate-200 dark:bg-slate-700">
-  {loading ? (
-    <SkeletonRow colSpan={columns.length + (renderRowActions ? 2 : 1)} />
-  ) : (
-    headerGroups.map((headerGroup) => (
-      <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-        {headerGroup.headers.map((column) => {
-          const headerProps = column.getHeaderProps(column.getSortByToggleProps());
-          const { key, ...rest } = headerProps;
-          return (
-            <th
-              key={key}
-              {...rest}
-              className="table-th whitespace-nowrap"
-            >
-              {column.render('Header')}
-              <span className="ml-1">
-                {column.isSorted
-                  ? column.isSortedDesc
-                    ? ' 🔽'
-                    : ' 🔼'
-                  : ''}
-              </span>
-            </th>
-          );
-        })}
-        {renderRowActions && <th className="px-4 py-2 border-b">Actions</th>}
-      </tr>
-    ))
-  )}
-</thead>
+            {loading ? (
+              <SkeletonRow colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} /> // ✅ dynamic colSpan
+            ) : (
+              headerGroups.map((headerGroup) => (
+                <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => {
+                    const headerProps = column.getHeaderProps(column.getSortByToggleProps());
+                    const { key, ...rest } = headerProps;
+                    return (
+                      <th
+                        key={key}
+                        {...rest}
+                        className="table-th whitespace-nowrap"
+                      >
+                        {column.render('Header')}
+                        <span className="ml-1">
+                          {column.isSorted
+                            ? column.isSortedDesc
+                              ? ' 🔽'
+                              : ' 🔼'
+                            : ''}
+                        </span>
+                      </th>
+                    );
+                  })}
+                  {renderRowActions && <th className="px-4 py-2 border-b">Actions</th>}
+                </tr>
+              ))
+            )}
+          </thead>
 
           <tbody
             className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
@@ -176,7 +196,7 @@ const BaseTable = forwardRef(({
           >
             {loading ? (
               [...Array(pageSize)].map((_, i) => (
-                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 2 : 1)} />
+                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} /> // ✅ dynamic colSpan
               ))
             ) : page.length > 0 ? (
               page.map((row) => {
@@ -184,19 +204,18 @@ const BaseTable = forwardRef(({
                 return (
                   <tr key={row.id} {...row.getRowProps()}>
                     {row.cells.map((cell) => {
-  const cellProps = cell.getCellProps();
-  const { key, ...rest } = cellProps;
-  return (
-    <td
-      key={key}  // explicit key from cellProps
-      {...rest}
-      className="table-td whitespace-nowrap"
-    >
-      {cell.render('Cell')}
-    </td>
-  );
-})}
-
+                      const cellProps = cell.getCellProps();
+                      const { key, ...rest } = cellProps;
+                      return (
+                        <td
+                          key={key}
+                          {...rest}
+                          className="table-td whitespace-nowrap"
+                        >
+                          {cell.render('Cell')}
+                        </td>
+                      );
+                    })}
                     {renderRowActions && (
                       <td className="px-4 py-2 border-b">
                         {renderRowActions(row.original)}
@@ -207,7 +226,7 @@ const BaseTable = forwardRef(({
               })
             ) : (
               <tr>
-                <td colSpan={columns.length + 1} className="text-center py-6">
+                <td colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} className="text-center py-6">
                   No data found.
                 </td>
               </tr>
@@ -239,6 +258,11 @@ BaseTable.propTypes = {
   setFilter: PropTypes.func,
   pageIndex: PropTypes.number,
   setPageIndex: PropTypes.func,
+  showGlobalFilter: PropTypes.bool,
+  actionButton: PropTypes.node,
+  onSelectionChange: PropTypes.func,
+  refreshKey: PropTypes.any,
+  rowSelect: PropTypes.bool,
 };
 
 export default BaseTable;

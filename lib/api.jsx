@@ -425,5 +425,30 @@ export const getAds = async (adId = '', query = {}) => {
     throw error;
   }
 };
+// ad delete
+export const deleteAd = async (ad_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/ads/delete/${ad_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting ad:", error);
+    throw error;
+  }
+};
+//get ad by id
+ export const getAdById = async ({ ad_id }) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/ads/${ad_id}`);
+    return response;
+  } catch (error) {
+    console.error('Error getting ad by ID:', error);
+    throw error;
+  }
+};
+
 
 export default api;

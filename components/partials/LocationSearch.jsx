@@ -112,7 +112,7 @@ const LocationAutoCompleteSelect = ({ emirateId, selectedLocation, setSelectedLo
         aria-autocomplete="list"
         aria-controls="location-listbox"
         aria-activedescendant={
-          highlightIndex >= 0 ? `location-item-${suggestions[highlightIndex].id}` : undefined
+          highlightIndex >= 0 && suggestions[highlightIndex] ? `location-item-${suggestions[highlightIndex].id}` : undefined
         }
         style={{
           width: "100%",
