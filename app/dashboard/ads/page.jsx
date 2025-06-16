@@ -15,6 +15,8 @@ import { format } from "date-fns";
 import Toolbar from "@/components/partials/Toolbar";
 import { toast } from "react-toastify";
 import ConfirmDialog from "@/components/partials/ConfirmPopup";
+import Link from "next/link";
+
 const GetAds = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -69,11 +71,19 @@ const GetAds = () => {
 
 
   const toolbarActions = useMemo(() => [
-    { 
-      label: "Details", 
-      icon: "heroicons-outline:view-boards", 
-      allowMultiple: false 
-    },
+    {
+    label: "Details",
+    icon: "heroicons-outline:view-boards",
+    allowMultiple: false,
+    onClick: () => {
+      if (selectedRows.length !== 1) {
+        toast.warn("Please select exactly one ad to view details.");
+        return;
+      }
+      const id = selectedRows[0].id;
+      router.push(`/dashboard/ads/details/${id}`);
+    }
+  },
     { 
       label: "Listings", 
       icon: "heroicons-outline:document-text",
@@ -196,8 +206,11 @@ const GetAds = () => {
           case "premium": badgeClass = "bg-amber-500 text-amber-600 bg-opacity-[0.12]"; break;
           default: badgeClass = "bg-slate-800 dark:bg-slate-900 dark:text-slate-300 bg-opacity-[0.12]"; break;
         }
+        const onClickTitle = () => {
+          router.push(`/dashboard/ads/details/${row.original.id}`);
+        };
         return (
-          <div className="flex items-start gap-1">
+          <div className="flex items-start gap-1 cursor-pointer" onClick={onClickTitle}>
             <div>
               <Tooltip content={value}>
                 <span className="text-gray-800 dark:text-white mt-5 text-base font-small">{displayText}</span>
