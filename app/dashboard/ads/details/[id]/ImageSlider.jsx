@@ -5,7 +5,6 @@ import { Navigation, Thumbs } from 'swiper';
 import Lightbox from 'yet-another-react-lightbox';
 import { Thumbnails as LightboxThumbnails } from 'yet-another-react-lightbox/plugins';
 import { FaSearchPlus } from 'react-icons/fa';
-
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
@@ -40,9 +39,9 @@ const ImageSlider = ({ images = [] }) => {
     <video
                   controls
                   className="w-full h-64 object-cover rounded"
-                  poster={item.poster || ''}
+                  
                 >
-                  <source src={item.direct_url} type="video/mp4" />
+                  <source src={img.direct_url} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
   ) : (
@@ -107,6 +106,7 @@ const ImageSlider = ({ images = [] }) => {
         close={() => setLightboxOpen(false)}
         slides={images.map((img) => ({ src: img.direct_url }))}
         plugins={[LightboxThumbnails]}
+        carousel={{ finite: true }}
         thumbnails={{
           width: 100,
           height: 60,

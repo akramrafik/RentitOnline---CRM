@@ -449,6 +449,80 @@ export const deleteAd = async (ad_id) => {
     throw error;
   }
 };
+// change ad status
+export const changeAdStatus = async ({ ad_id, status, reason }) => {
+  try {
+    await csrf();
 
+    const formData = new FormData();
+    formData.append('status', status);
+    if (reason) formData.append('reason', reason);
+
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/ads/change-status/${ad_id}`,
+      formData
+    );
+
+    return response;
+  } catch (error) {
+    console.error('Error changing status:', error);
+    throw error;
+  }
+};
+
+// plan mapping
+export const mapPlan = async ({ ad_id, plan_id, duration }) => {
+  try {
+    await csrf();
+    const formData = new FormData();
+    formData.append('plan_id', plan_id);
+    formData.append('duration', duration);
+
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/ads/map-plan/${ad_id}`,
+      formData
+    );
+    return response;
+  } catch (error) {
+    console.error('Error map-plan:', error);
+    throw error;
+  }
+};
+// call leads
+export const callLedasByAd = async (ad_id, page = 1) =>{
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/ads/call-leads/${ad_id}`,{
+      params: {page},
+    });
+    return response;
+  }catch(error){
+    if (error.response) {
+      console.error("API Error:", error.response.status, error.response.data);
+      console.log(process.env.NEXT_PUBLIC_API_VERSION)
+    } else {
+      console.error("Network or config error:", error.message);
+    }
+    throw error
+  }
+}
+// call leads
+export const whatsappLedasByAd = async (ad_id, page = 1) =>{
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/ads/whatsapp-leads/${ad_id}`,{
+      params: {page},
+    });
+    return response;
+  }catch(error){
+    if (error.response) {
+      console.error("API Error:", error.response.status, error.response.data);
+      console.log(process.env.NEXT_PUBLIC_API_VERSION)
+    } else {
+      console.error("Network or config error:", error.message);
+    }
+    throw error
+  }
+}
 
 export default api;

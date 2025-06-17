@@ -15,7 +15,6 @@ import { format } from "date-fns";
 import Toolbar from "@/components/partials/Toolbar";
 import { toast } from "react-toastify";
 import ConfirmDialog from "@/components/partials/ConfirmPopup";
-import Link from "next/link";
 
 const GetAds = () => {
   const searchParams = useSearchParams();
@@ -93,6 +92,33 @@ const GetAds = () => {
       label: "Clicks",
       icon: "heroicons-outline:check-circle",
       allowMultiple: false 
+    },
+     {
+  label: "Whatsapp Leads",
+  icon: "heroicons-outline:chat-bubble-oval-left",
+  allowMultiple: false,
+  onClick: () => {
+    if (selectedRows.length !== 1) {
+      toast.warn("Please select exactly one ad to view WhatsApp leads.");
+      return;
+    }
+    const id = selectedRows[0].id;
+    router.push(`/dashboard/ads/whatsapp-leads/${id}`)
+  },
+},
+
+    { 
+      label: "Call Leads",
+      icon: "heroicons-outline:phone",
+      allowMultiple: false, 
+      onClick: () => {
+        if(selectedRows.length !== 1){
+          toast.warn("Please select exactly one ad to view call leads");
+          return;
+        }
+        const id = selectedRows[0].id;
+        router.push(`/dashboard/ads/call-leads/${id}`)
+      }
     },
     { 
       label: "Edit",
