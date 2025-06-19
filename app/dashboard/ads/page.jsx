@@ -91,7 +91,15 @@ const GetAds = () => {
     { 
       label: "Clicks",
       icon: "heroicons-outline:check-circle",
-      allowMultiple: false 
+      allowMultiple: false ,
+       onClick: () => {
+    if (selectedRows.length !== 1) {
+      toast.warn("Please select exactly one ad to view click count.");
+      return;
+    }
+    const id = selectedRows[0].id;
+    router.push(`/dashboard/ads/clicks/${id}`)
+  },
     },
      {
   label: "Whatsapp Leads",

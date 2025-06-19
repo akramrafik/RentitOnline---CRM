@@ -524,5 +524,35 @@ export const whatsappLedasByAd = async (ad_id, page = 1) =>{
     throw error
   }
 }
+// ad clicks
+export const adClicks = async (ad_id, page = 1) =>{
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/ads/clicks/${ad_id}`,{
+      params: {page},
+    });
+    return response;
+  }catch(error){
+    if (error.response) {
+      console.error("API Error:", error.response.status, error.response.data);
+      console.log(process.env.NEXT_PUBLIC_API_VERSION)
+    } else {
+      console.error("Network or config error:", error.message);
+    }
+    throw error
+  }
+}
+
+// report emirates
+export const reportByEmirte = async() => {
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/reports/emirate`)
+    return response;
+  }catch(error){
+    console.error('error fetching report', error)
+  }
+  throw error;
+}
 
 export default api;
