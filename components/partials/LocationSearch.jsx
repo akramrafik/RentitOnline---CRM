@@ -9,7 +9,6 @@ const LocationAutoCompleteSelect = ({ emirateId, selectedLocation, setSelectedLo
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
-
   const containerRef = useRef(null);
 
   // Debounced fetch function

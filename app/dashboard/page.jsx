@@ -7,6 +7,7 @@ import FilterMonthlyData from "@/components/partials/SelectMonth";
 import BasicArea from "@/components/partials/chart/appex-chart/BasicArea";
 import BarChart from "@/components/partials/chart/chartjs/Bar";
 import { getDashboardData } from "@/lib/api";
+import CommonDropdown from "@/components/ui/Common-dropdown";
 
 // Reusable Skeleton Block
 const SkeletonBox = ({ height = "h-24", className = "" }) => (
@@ -44,10 +45,10 @@ const CrmPage = () => {
          
             {isLoading ? (
               <>
-                <Card><SkeletonBox height="h-20" /></Card>
-                <Card><SkeletonBox height="h-20" /></Card>
-                <Card><SkeletonBox height="h-20" /></Card>
-                <Card><SkeletonBox height="h-20" /></Card>
+                <SkeletonBox height="h-20" />
+                <SkeletonBox height="h-20" />
+                <SkeletonBox height="h-20" />
+                <SkeletonBox height="h-20" />
               </>
             ) : (
               <GroupChart3 data={data} />
@@ -58,16 +59,28 @@ const CrmPage = () => {
  </div>
         {/* Overview Area Chart */}
         <div className="col-span-12 lg:col-span-8 space-y-5">
-          <Card title="Overview">
+          <Card title="Overview"
+           headerslot={
+    !isLoading && (
+      <CommonDropdown
+        contentWrapperClass="rounded-lg filter-panel"
+        header="Filters"
+        label="Filter"
+        split
+        labelClass="btn-sm h-10 my-0 btn-outline-light"
+      >
+        <FilterMonthlyData onDataUpdate={setFilteredData} />
+      </CommonDropdown>
+    )
+  }
+  >
             {isLoading ? (
               <div className="space-y-4">
-                <SkeletonBox height="h-10 w-32" />
                 <SkeletonBox height="h-[300px]" />
               </div>
             ) : (
-              <>
-                <FilterMonthlyData onDataUpdate={setFilteredData} />
-                <BasicArea data={filteredData} height={300} />
+              <>       
+                <BasicArea data={filteredData} height={320} />
               </>
             )}
           </Card>

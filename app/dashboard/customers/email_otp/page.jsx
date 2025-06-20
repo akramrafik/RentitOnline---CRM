@@ -40,6 +40,7 @@ const WhatsappOtp = () => {
             pageIndex={pageIndex}
             setPageIndex={(index) => startTransition(() => setPageIndex(index))}
             showGlobalFilter={false}
+            rowSelect={false}
             />
         </Card>
     );

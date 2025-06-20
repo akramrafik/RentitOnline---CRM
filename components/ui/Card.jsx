@@ -30,6 +30,7 @@ const Card = ({
           <div>
             {title && <div className={`card-title ${titleClass}`}>{title}</div>}
             {subtitle && <div className="card-subtitle">{subtitle}</div>}
+           
           </div>
           {headerslot && <div className="card-header-slot">{headerslot}</div>}
         </header>

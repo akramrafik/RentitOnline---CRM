@@ -554,5 +554,16 @@ export const reportByEmirte = async() => {
   }
   throw error;
 }
+// edit ad
+ export const editAd = async ({ ad_id }) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/ads/edit/${ad_id}`);
+    return response;
+  } catch (error) {
+    console.error('Error edit add:', error);
+    throw error;
+  }
+};
 
 export default api;

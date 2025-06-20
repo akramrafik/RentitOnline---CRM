@@ -131,7 +131,15 @@ const GetAds = () => {
     { 
       label: "Edit",
       icon: "heroicons-outline:pencil-alt",
-      allowMultiple: false 
+      allowMultiple: false,
+      onClick: () => {
+        if(selectedRows.length !== 1){
+          toast.warn("Please select exactly one ad to edit");
+          return;
+        }
+        const id = selectedRows[0].id;
+        router.push(`/dashboard/ads/edit/${id}`)
+      }
     },
     {
   label: "Delete",

@@ -1,4 +1,4 @@
-import SimpleIcon from "@/components/ui/SimpleIcon";
+import SimpleIcon from "@/components/ui/SimpleIcon";  
 
 export const menuItems = [
   {

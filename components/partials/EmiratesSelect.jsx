@@ -61,7 +61,6 @@ const EmirateSelectDropdown = ({
 
   return (
     <div className="formGroup">
-      <label className="form-label mb-1 block">Select Emirate</label>
       {loading ? (
         <div className="text-gray-400 text-sm">Loading emirates...</div>
       ) : (

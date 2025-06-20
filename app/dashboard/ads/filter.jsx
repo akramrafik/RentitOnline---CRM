@@ -4,6 +4,7 @@ import Flatpickr from "react-flatpickr";
 import { getCategories } from "@/lib/api";
 import InputGroup from "@/components/ui/InputGroup";
 import LocationAutoCompleteInput from "@/components/partials/LocationSearch";
+import EmirateSelectDropdown from "@/components/partials/EmiratesSelect";
 
 const FilterComp = ({selectedCategory, setSelectedCategory, selectedSubCategory, setSelectedSubCategory,selectedStatus, setSelectedStatus, selectedPlan, setSelectedPlan, startDate, setStartDate, endDate, setEndDate,selectedLocation,setSelectedLocation, resetFiltersRef }) => {
   const [picker, setPicker] = useState(new Date());
@@ -164,12 +165,16 @@ const FilterComp = ({selectedCategory, setSelectedCategory, selectedSubCategory,
     </div>
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 mt-2">
   <div className="col-span-1">
-    <ReactSelectFilter 
+  <EmirateSelectDropdown
+    // value={emirateOptions.find(opt => opt.value === emirateId)}
+      onChange={(selectedOption) => setEmirateId(selectedOption.id)}
+  />
+    {/* <ReactSelectFilter 
       options={emirateOptions}
       value={emirateOptions.find(opt => opt.value === emirateId)}
       onChange={(selectedOption) => setEmirateId(selectedOption.value)}
       placeholder="Emirates"
-    />
+    /> */}
   </div>
   <div className="col-span-1 lg:col-span-3">
     <LocationAutoCompleteInput 

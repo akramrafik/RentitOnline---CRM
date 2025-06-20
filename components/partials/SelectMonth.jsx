@@ -5,6 +5,7 @@ import ReactSelect from "./froms/ReactSelect";
 import Flatpickr from "react-flatpickr";
 import { getDashboardData, getMonthlyAdsReport } from "@/lib/api";
 import { toast } from "react-toastify";
+import ReactSelectFilter from "./froms/ReactSelectFIlter";
 
 const FilterMonthlyData = ({ onDataUpdate }) => {
   const [startDate, setStartDate] = useState(null);
@@ -108,8 +109,7 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
           onChange={date => setEndDate(date[0])}
         />
       </div>
-
-      <ReactSelect
+      <ReactSelectFilter
        className="h-[42px] text-sm"
         placeholder="Choose Category"
         options={categoryOptions}
@@ -120,7 +120,7 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
         isDisabled={loading}
       />
 
-      <ReactSelect
+      <ReactSelectFilter
         className="h-[42px] text-sm"
         placeholder="Choose Sub Category"
         options={subCategoryOptions}
