@@ -565,5 +565,67 @@ export const reportByEmirte = async() => {
     throw error;
   }
 };
-
+//get customers
+ export const getCustomersList = async (params = {}) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/customers`,
+       { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting Customers:', error);
+    throw error;
+  }
+};
+//edit customers
+ export const getCustomersById = async ( customer_id ) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/customers/${customer_id}`,);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting Customers:', error);
+    throw error;
+  }
+};
+//post customer details
+ export const  updateCustomer = async ({ customer_id,  formData }) => {
+  try {
+    await csrf();
+    const response = await api.post(`${process.env.NEXT_PUBLIC_API_VERSION}/customers/update/${customer_id}`,
+       formData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting Customers:', error);
+    throw error;
+  }
+};
+// toggle customer status
+  export const updateCustomerStatus = async (customer_id) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/customers/toggle-status/${customer_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category status:", error);
+    throw error;
+  }
+};
+// customer delete 
+  export const deleteCustomer = async (customer_id) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/customers/delete/${customer_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting customer:", error);
+    throw error;
+  }
+};
 export default api;

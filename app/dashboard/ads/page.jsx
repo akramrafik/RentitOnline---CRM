@@ -24,8 +24,6 @@ const GetAds = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [type, setType] = useState("");
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
@@ -191,10 +189,18 @@ const GetAds = () => {
 
   useEffect(() => {
     if (!hasInitialized) return;
-    const params = new URLSearchParams();
-    if (filter) params.set("q", filter);
-    if (pageIndex > 0) params.set("page", pageIndex + 1);
-    if (selectedCategory?.value) params.set("category", selectedCategory.value); // ✅ fixed typo
+    const params = new URLSearchParams(window.location.search);
+    if (filter) {
+    params.set("q", filter);
+  } else {
+    params.delete("q");
+  }
+    if (pageIndex > 0) {
+    params.set("page", String(pageIndex + 1));
+  } else {
+    params.delete("page");
+  }
+    if (selectedCategory?.value) params.set("category", selectedCategory.value); //fixed typo
     if (selectedSubCategory?.value) params.set("subcategory", selectedSubCategory.value);
     if (selectedStatus?.value) params.set("filter", selectedStatus.value);
     if (selectedPlan?.value) params.set("plan", selectedPlan.value);

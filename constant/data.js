@@ -24,6 +24,10 @@ export const menuItems = [
   },
   {
     isHeadr: true,
+    title: "REFERRAL PROGRAM",
+  },
+  {
+    isHeadr: true,
     title: "AGENTS",
   },
   {

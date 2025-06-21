@@ -52,14 +52,14 @@ const BaseTable = forwardRef(({
   const fetchData = async () => {
     try {
       setLoading(true);
-      const queryParams = {
-        ...params,
-        pageIndex,
-        page: pageIndex + 1,
-        pageSize,
-        q: filter,
-      };
-      const response = await apiCall(queryParams);
+      // const queryParams = {
+      //   ...params,
+      //   pageIndex,
+      //   page: pageIndex + 1,
+      //   pageSize,
+      //   q: filter,
+      // };
+      const response = await apiCall({ pageIndex, q: filter, ...params });
       setData(response.data || []);
       setTotalPages(response.meta?.last_page || 1);
     } catch (error) {
