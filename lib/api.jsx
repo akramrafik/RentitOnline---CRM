@@ -665,4 +665,18 @@ export const reportByEmirte = async() => {
     throw error;
   }
 };
+// create referall program
+export const createReferralProgram = async(formData) =>{
+  try{
+    await csrf();
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/referral-campaigns/create`,
+      formData
+    );
+    return response.data;
+  }catch(error){
+    console.error("error submitting referral", error)
+    throw error;
+  }
+};
 export default api;

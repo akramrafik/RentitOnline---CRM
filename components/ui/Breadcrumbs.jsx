@@ -1,63 +1,63 @@
-import React, { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import React from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { menuItems } from "@/constant/data";
 import Icon from "@/components/ui/Icon";
+
+const formatLabel = (text) =>
+  text.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
 const Breadcrumbs = () => {
   const location = usePathname();
-  const locationName = location.replace("/", "");
+  const segments = location.split("/").filter(Boolean); // ["dashboard", "referrals", "create"]
 
-  const [isHide, setIsHide] = useState(null);
-  const [groupTitle, setGroupTitle] = useState("");
+  // Build breadcrumb items with href and label
+  // We'll skip the first "dashboard" segment since Home points there already
+  const crumbs = segments.map((segment, idx) => {
+    const href = "/" + segments.slice(0, idx + 1).join("/");
+    return { href, label: formatLabel(segment) };
+  });
 
-  useEffect(() => {
-    const currentMenuItem = menuItems.find(
-      (item) => item.link === locationName
-    );
-
-    const currentChild = menuItems.find((item) =>
-      item.child?.find((child) => child.childlink === locationName)
-    );
-
-    if (currentMenuItem) {
-      setIsHide(currentMenuItem.isHide);
-    } else if (currentChild) {
-      setIsHide(currentChild?.isHide || false);
-      setGroupTitle(currentChild?.title);
-    }
-  }, [location, locationName]);
+  // Home link fixed
+  const home = { href: "/dashboard", label: "Home" };
 
   return (
-    <>
-      {!isHide ? (
-        <div className="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse">
-          <ul className="breadcrumbs">
-            <li className="text-primary-500">
-              <Link href="/dashboard" className="text-lg">
-                <Icon icon="heroicons-outline:home" />
-              </Link>
-              <span className="breadcrumbs-icon rtl:transform rtl:rotate-180">
-                <Icon icon="heroicons:chevron-right" />
-              </span>
+    <nav className="md:mb-6 mb-4 flex space-x-3 rtl:space-x-reverse" aria-label="Breadcrumb">
+      <ul className="breadcrumbs flex items-center space-x-2 rtl:space-x-reverse">
+        {/* Home always first */}
+        <li className="text-primary-500">
+          <Link href={home.href} className="text-lg flex items-center">
+            <Icon icon="heroicons-outline:home" />
+            <span className="sr-only">Home</span>
+          </Link>
+          <span className="breadcrumbs-icon rtl:transform rtl:rotate-180">
+            <Icon icon="heroicons:chevron-right" 
+              className="text-primary-500"
+            />
+          </span>
+        </li>
+
+        {/* Loop over crumbs but skip first segment "dashboard" because Home covers it */}
+        {crumbs.slice(1).map((crumb, idx) => {
+          const isLast = idx === crumbs.slice(1).length - 1;
+          return (
+            <li key={crumb.href} className={`capitalize ${isLast ? "text-slate-500 dark:text-slate-400" : "text-primary-500"}`}>
+              {!isLast ? (
+                <>
+                  <Link href={crumb.href} className="hover:underline">
+                    {crumb.label}
+                  </Link>
+                  <span className="breadcrumbs-icon rtl:transform rtl:rotate-180">
+                    <Icon icon="heroicons:chevron-right" />
+                  </span>
+                </>
+              ) : (
+                <span aria-current="page">{crumb.label}</span>
+              )}
             </li>
-            {groupTitle && (
-              <li className="text-primary-500">
-                <button type="button" className="capitalize">
-                  {groupTitle}
-                </button>
-                <span className="breadcrumbs-icon rtl:transform rtl:rotate-180">
-                  <Icon icon="heroicons:chevron-right" />
-                </span>
-              </li>
-            )}
-            <li className="capitalize text-slate-500 dark:text-slate-400">
-              {locationName}
-            </li>
-          </ul>
-        </div>
-      ) : null}
-    </>
+          );
+        })}
+      </ul>
+    </nav>
   );
 };
 

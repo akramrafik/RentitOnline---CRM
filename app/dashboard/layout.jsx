@@ -104,6 +104,7 @@ export default function RootLayout({ children }) {
               contentWidth === "boxed" ? "container mx-auto" : "container-fluid"
             }
           >
+          <Breadcrumbs/>
             <motion.div
               key={location}
               initial="pageInitial"

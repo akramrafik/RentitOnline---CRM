@@ -24,14 +24,6 @@ const GetAds = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [emirateId, setEmirateId] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
   const isInternalUpdate = useRef(false);
   const [deleteTarget, setDeleteTarget] = useState(null); 
@@ -81,19 +73,6 @@ const ReferralTypeBadge = ({ label }) => {
 
   const toolbarActions = useMemo(() => [
     { 
-      label: "Create New",
-      icon: "heroicons-outline:pencil-alt",
-      allowMultiple: false,
-      onClick: () => {
-        if(selectedRows.length !== 1){
-          toast.warn("Please select exactly one ad to edit");
-          return;
-        }
-        const id = selectedRows[0].id;
-        router.push(`/dashboard/ads/edit/${id}`)
-      }
-    },
-    { 
       label: "Edit",
       icon: "heroicons-outline:pencil-alt",
       allowMultiple: false,
@@ -103,7 +82,7 @@ const ReferralTypeBadge = ({ label }) => {
           return;
         }
         const id = selectedRows[0].id;
-        router.push(`/dashboard/ads/edit/${id}`)
+        router.push(`/dashboard/referral-campaigns/edit/${id}`)
       }
     },
     {
@@ -123,18 +102,9 @@ const ReferralTypeBadge = ({ label }) => {
   const handleClearSelection = () => setSelectedRows([]);
 
   const handleClearFilter  = () => {
-    setFilter("");
-    setSelectedCategory(null);
-    setSelectedSubCategory(null);
-    setSelectedStatus(null);
-    setSelectedPlan(null);
-    setSelectedLocation(null);
-    setStartDate(null);
-    setEndDate(null);
+    setFilter("");;
     setPageIndex(0);
   };
-
-  const hasActiveFilter = !!filter || !!selectedCategory || !!selectedSubCategory || !!selectedStatus || !!selectedPlan || !!selectedLocation || !!startDate || !!endDate;
 
   useEffect(() => {
     if (isInternalUpdate.current) {
@@ -162,19 +132,13 @@ const ReferralTypeBadge = ({ label }) => {
   } else {
     params.delete("page");
   }
-    if (selectedCategory?.value) params.set("category", selectedCategory.value); //fixed typo
-    if (selectedSubCategory?.value) params.set("subcategory", selectedSubCategory.value);
-    if (selectedStatus?.value) params.set("filter", selectedStatus.value);
-    if (selectedPlan?.value) params.set("plan", selectedPlan.value);
-    if (selectedLocation?.city) params.set("location", selectedLocation.city);
-    if (startDate) params.set("start_date", format(startDate, "dd-MM-yyyy"));
-    if (endDate) params.set("end_date", format(endDate, "dd-MM-yyyy"));
+   
     const nextUrl = `?${params.toString()}`;
     if (nextUrl !== window.location.search) {
       isInternalUpdate.current = true;
       router.replace(nextUrl);
     }
-  }, [filter, pageIndex, selectedCategory, selectedSubCategory, selectedStatus, selectedPlan, selectedLocation, startDate, endDate, hasInitialized]);
+  }, [filter, pageIndex,hasInitialized]);
 
   const debouncedSetFilter = useMemo(() => debounce((value) => {
     startTransition(() => {
@@ -186,14 +150,7 @@ const ReferralTypeBadge = ({ label }) => {
   useEffect(() => () => debouncedSetFilter.cancel(), []); // cleanup debounce
 
   const memoizedParams = useMemo(() => ({
-    category: selectedCategory?.value || "",
-    subcategory: selectedSubCategory?.value || "",
-    filter: selectedStatus?.value || "",
-    plan: selectedPlan?.value || "",
-    location: selectedLocation?.city || "",
-    start_date: startDate ? format(startDate, "dd-MM-yyyy") : "",
-    end_date: endDate ? format(endDate, "dd-MM-yyyy") : "",
-  }), [selectedCategory, selectedSubCategory, selectedStatus, selectedPlan, selectedLocation, startDate, endDate]);
+  }), []);
 
   const columns = useMemo(() => [
     { Header: "Id", accessor: "id" },
@@ -308,21 +265,14 @@ const ReferralTypeBadge = ({ label }) => {
             params={memoizedParams}
             title="Referral Programs"
             showGlobalFilter
-            // actionButton={(
-            //   <div className="space-x-5 flex">
-            //     <Button
-            //       onClick={handleClearFilter }
-            //       disabled={!hasActiveFilter}
-            //       icon="heroicons-outline:refresh"
-            //       text="Clear filter"
-            //       className={`bg-white text-primary-500 py-1 mx-0 ${!hasActiveFilter ? "opacity-50 cursor-not-allowed" : ""}`}
-            //     />
-            //     {/* <Button icon="heroicons-outline:plus" text="Add New" className="bg-primary-500 text-white btn-sm h-10 my-0" /> */}
-            //     <CommonDropdown contentWrapperClass="rounded-lg filter-panel" header="Filters" label="Filter" split labelClass="btn-sm h-10 my-0 btn-outline-light">
-                  
-            //     </CommonDropdown>
-            //   </div>
-            // )}
+            actionButton={(
+             <Button
+              icon="heroicons-outline:plus"
+              text="Create New"
+              className="bg-primary-500 text-white btn-sm mr-2"
+              onClick={() => router.push("/dashboard/referral-campaigns/create")}
+             />
+            )}
           />
         )}
       </Card>

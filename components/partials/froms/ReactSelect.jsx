@@ -27,14 +27,14 @@ const customStyles = {
 };
 
 const ReactSelect = ({
-  options,             // Array of options to display
+  options,            
   value,
-  validation,               // Selected value
-  onChange,            // onChange handler
-  placeholder,         // Placeholder text for the select input
-  isMulti = false,     // Whether multiple selections are allowed
-  error,              // Error message to display
-  ...props            // Allow other props to be passed to the Select component
+  validation,              
+  onChange,         
+  placeholder,         
+  isMulti = false,     
+  error,              
+  ...props            
 }) => {
   return (
     <div>
