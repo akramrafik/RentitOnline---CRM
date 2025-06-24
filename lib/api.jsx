@@ -628,4 +628,41 @@ export const reportByEmirte = async() => {
     throw error;
   }
 };
+// referral program
+ export const getAllReferrals = async (params = {}) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/referral-campaigns`,
+       { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting Customers:', error);
+    throw error;
+  }
+};
+// Delete referral program by id
+ export const deleteReferralById = async (campaign_id) => {
+  try {
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/referral-campaigns/delete/${campaign_id}`,);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting Customers:', error);
+    throw error;
+  }
+};
+// toggle referral status
+  export const updateReferralStatus = async (campaign_id) => {
+  try {
+    await csrf(); // if you require CSRF before the call
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/referral-campaigns/toggle-status/${campaign_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating referral status:", error);
+    throw error;
+  }
+};
 export default api;

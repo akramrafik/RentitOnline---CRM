@@ -26,6 +26,27 @@ export const menuItems = [
     isHeadr: true,
     title: "REFERRAL PROGRAM",
   },
+   {
+    title: "Campaigns",
+    icon: "heroicons-outline:megaphone",
+    isOpen: false,
+    isHide: false,
+    link: "/dashboard/referral-campaigns",
+  },
+  {
+    title: "Referral History",
+    icon: "heroicons-outline:clipboard-document-check",
+    isOpen: false,
+    isHide: false,
+    link: "",
+  },
+  {
+    title: "Withdraw",
+    icon: "heroicons-outline:arrow-down-tray",
+    isOpen: false,
+    isHide: false,
+    link: "",
+  },
   {
     isHeadr: true,
     title: "AGENTS",
