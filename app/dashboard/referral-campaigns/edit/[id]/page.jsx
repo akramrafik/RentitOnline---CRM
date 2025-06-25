@@ -7,11 +7,16 @@ import Textarea from "@/components/ui/Textarea";
 import Card from "@/components/ui/Card";
 import { toast } from "react-toastify";
 import ReactSelect from "@/components/partials/froms/ReactSelect";
-import { createReferralProgram } from "@/lib/api";
+import { useParams } from "next/navigation";
+import { getReferralById, updateReferralProgram } from "@/lib/api";
 
 const CreateReferralPage = () => {
   const [statusValue, setStatusValue] = useState();
   const [typeValue, setTypeValue] = useState();
+  const [referralData, setReferralData] = useState(null);
+  const [isMounted, setIsMounted] = useState(false); // prevent premature reset
+  const params = useParams();
+  const id = params?.id;
 
   const {
     register,
@@ -20,7 +25,6 @@ const CreateReferralPage = () => {
     setValue,
     setError,
     clearErrors,
-    getValues,
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -49,11 +53,46 @@ const CreateReferralPage = () => {
     name: "eligibility",
   });
 
-  // Initialize with one field each
+  // Mark form as mounted (field arrays initialized)
   useEffect(() => {
-    if (hiwFields.length === 0) appendHiw("");
-    if (eligibilityFields.length === 0) appendEligibility("");
-  }, [hiwFields.length, eligibilityFields.length]);
+    if (!isMounted && hiwFields && eligibilityFields) {
+      setIsMounted(true);
+    }
+  }, [hiwFields, eligibilityFields]);
+
+  // Fetch and store data
+  useEffect(() => {
+    if (id) {
+      getReferralById(id).then((res) => {
+        const data = res?.data;
+        setReferralData(data);
+
+        // Select values for dropdowns
+        setTypeValue({
+          label: data.type === "place_ad" ? "Place Ad" : "Register",
+          value: data.type,
+        });
+
+        setStatusValue({
+          label: data.status === 1 ? "Active" : "Inactive",
+          value: data.status,
+        });
+
+        // Delay reset until form is ready
+        if (isMounted) {
+          reset({
+            name: data.name || "",
+            headline: data.headline || "",
+            description: data.description || "",
+            hiw: data.hiw?.length ? data.hiw : [""],
+            eligibility: data.eligibility?.length ? data.eligibility : [""],
+            status: data.status ?? 0,
+            type: data.type || "",
+          });
+        }
+      });
+    }
+  }, [id, isMounted, reset]);
 
   const handleTypeChange = useCallback((selected) => {
     setTypeValue(selected);
@@ -68,24 +107,23 @@ const CreateReferralPage = () => {
 
   const onSubmit = async (data) => {
     if (!data.type) {
-  setError("type", { type: "manual", message: "Type is required" });
-  return;
-}
-   try{
-    const response = await createReferralProgram(data)
-    toast.success("Referral program created successfully")
-    reset();
-    setTypeValue(null);
-    setStatusValue(null);
-    console.log("API response:", response);
-   }catch(err){
-    toast.error("Failed to create referral program")
-   }
+      setError("type", { type: "manual", message: "Type is required" });
+      return;
+    }
+
+    try {
+      const response = await updateReferralProgram(id, data);
+      toast.success("Referral program updated successfully");
+    } catch (err) {
+      toast.error("Failed to update referral program");
+    }
   };
+
+  if (!referralData) return <div>Loading...</div>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid xl:grid-cols-2 grid-cols-1 gap-5">
-      <Card title="Create Referral Program">
+      <Card title="Edit Referral Program">
         <div className="space-y-5">
           <Textinput
             label="Name*"
@@ -196,24 +234,23 @@ const CreateReferralPage = () => {
 
           {/* Type */}
           <ReactSelect
-  options={[
-    { label: "Place Ad", value: "place_ad" },
-    { label: "Register", value: "register" },
-  ]}
-  value={typeValue}
-  onChange={handleTypeChange}
-  placeholder="Select Type"
-/>
+            options={[
+              { label: "Place Ad", value: "place_ad" },
+              { label: "Register", value: "register" },
+            ]}
+            value={typeValue}
+            onChange={handleTypeChange}
+            placeholder="Select Type"
+          />
 
-<input
-  type="hidden"
-  {...register("type", { required: "Type is required" })}
-/>
+          <input
+            type="hidden"
+            {...register("type", { required: "Type is required" })}
+          />
 
-{errors.type?.message && (
-  <p className="text-danger-500 text-sm">{errors.type.message}</p>
-)}
-
+          {errors.type?.message && (
+            <p className="text-danger-500 text-sm">{errors.type.message}</p>
+          )}
 
           {/* Status */}
           <ReactSelect

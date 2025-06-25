@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 
 const Toolbar = ({ selectedCount = 0, onClear, actions = [] }) => {
   return (
-    <div className="fixed bottom-14 left-1/2 transform -translate-x-1/2 z-50 flex items-center justify-between 
+    <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50 flex items-center justify-between 
       px-6 py-2 bg-white text-dark shadow-[0px_15px_50px_rgba(0,0,0,0.3)] 
       rounded-md mb-4 min-w-[320px] w-fit max-w-full overflow-x-auto whitespace-nowrap scroll-smooth scrollbar-hide">
       <div className="flex items-center space-x-3 flex-shrink-0">

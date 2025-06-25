@@ -679,4 +679,29 @@ export const createReferralProgram = async(formData) =>{
     throw error;
   }
 };
+// get referral by id
+export const getReferralById = async(campaign_id) => {
+try{
+await csrf();
+const response = await api.get(
+  `${process.env.NEXT_PUBLIC_API_VERSION}/referral-campaigns/${campaign_id}`,
+)
+return response.data;
+}catch(error){
+  console.error("error getting data", error)
+}
+};
+// updateReferralProgram
+export const updateReferralProgram = async(campaign_id, data) => {
+try{
+await csrf();
+const response = await api.post(
+  `${process.env.NEXT_PUBLIC_API_VERSION}/referral-campaigns/update/${campaign_id}`,
+  data
+)
+return response.data;
+}catch(error){
+  console.error("error updating data", error)
+}
+};
 export default api;
