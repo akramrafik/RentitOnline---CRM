@@ -3,16 +3,18 @@ import Select from "react-select";
 
 const customStyles = {
   control: (provided, state) => ({
-    ...provided,
-    //padding: "1px",
-    //borderRadius: "6px",
-    borderColor: state.isFocused ? "#e2e8f0" : "#e2e8f0",
-    boxShadow: state.isFocused ? "#e2e8f0" : "#e2e8f0",
-    outline: "000",
-    "&:hover": {
-      borderColor: "#596678",
-    },
-  }),
+  ...provided,
+  borderColor: state.isFocused
+    ? "#e2e8f0"
+    : state.selectProps.error
+    ? "#ef4444" // Tailwind red-500
+    : "#e2e8f0",
+  boxShadow: state.selectProps.error ? "0 0 0 1px #ef4444" : "none",
+  "&:hover": {
+    borderColor: state.selectProps.error ? "#ef4444" : "#596678",
+  },
+}),
+
   indicatorSeparator: () => ({
     display: "none",
   }),

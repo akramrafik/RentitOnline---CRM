@@ -193,8 +193,6 @@ const CreateReferralPage = () => {
               </div>
             ))}
           </div>
-
-          {/* Type */}
           <ReactSelect
   options={[
     { label: "Place Ad", value: "place_ad" },

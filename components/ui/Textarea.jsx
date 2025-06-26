@@ -47,7 +47,7 @@ const Textarea = ({
             {...rest}
             className={`${
               error ? " has-error" : " "
-            } form-control py-2 ${className}  `}
+            } form-control py-1 ${className}  `}
             placeholder={placeholder}
             readOnly={readonly}
             disabled={disabled}
@@ -61,7 +61,7 @@ const Textarea = ({
           <textarea
             className={`${
               error ? " has-error" : " "
-            } form-control py-2 ${className}  `}
+            } form-control py-1 ${className}  `}
             placeholder={placeholder}
             readOnly={readonly}
             disabled={disabled}

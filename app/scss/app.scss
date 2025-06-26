@@ -231,7 +231,14 @@
 .z-1000 {
   z-index: 1000;
 }
-
+.fr-second-toolbar {
+  display: none !important;
+}
+.fr-wrapper.show-placeholder{
+  border-radius: 0 0 10px 10px;
+    -moz-border-radius: 0 0 10px 10px;
+    -webkit-border-radius: 0 0 10px 10px;
+}
 
 @layer components {
   @import "components/table.scss";

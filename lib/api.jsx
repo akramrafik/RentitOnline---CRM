@@ -234,12 +234,12 @@ export const getCategories = async (params = {}) => {
 };
 
 // categiry create
-export const createCategory = async (params = {}) => {
+export const createCategory = async (formData) => {
     try {
       await csrf();
       const response = await api.post(
         `${process.env.NEXT_PUBLIC_API_VERSION}/categories/create`,
-        params
+        formData
       );
       console.log('Actual API response create category:', response.data);
       return response.data;

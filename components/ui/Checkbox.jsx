@@ -5,6 +5,7 @@ const Checkbox = ({
   value,
   name,
   onChange,
+  error,
   activeClass = "ring-black-500  bg-slate-900 dark:bg-slate-700 dark:ring-slate-700 ",
 }) => {
   return (
@@ -43,6 +44,9 @@ const Checkbox = ({
   <span className="text-slate-500 dark:text-slate-400 text-sm leading-6 capitalize">
     {label}
   </span>
+  {error && (
+        <p className="text-red-500 text-xs ml-7">{error.message || error}</p>
+      )}
 </label>
 
   );

@@ -170,6 +170,10 @@ const GetAds = () => {
     setStartDate(null);
     setEndDate(null);
     setPageIndex(0);
+     const params = new URLSearchParams();
+  params.set("page", "1");
+  isInternalUpdate.current = true;
+  router.replace(`?${params.toString()}`)
   };
 
   const hasActiveFilter = !!filter || !!selectedCategory || !!selectedSubCategory || !!selectedStatus || !!selectedPlan || !!selectedLocation || !!startDate || !!endDate;
@@ -200,7 +204,7 @@ const GetAds = () => {
   } else {
     params.delete("page");
   }
-    if (selectedCategory?.value) params.set("category", selectedCategory.value); //fixed typo
+    if (selectedCategory?.value) params.set("category", selectedCategory.value); 
     if (selectedSubCategory?.value) params.set("subcategory", selectedSubCategory.value);
     if (selectedStatus?.value) params.set("filter", selectedStatus.value);
     if (selectedPlan?.value) params.set("plan", selectedPlan.value);
@@ -315,7 +319,7 @@ const GetAds = () => {
             title="Ads"
             showGlobalFilter
             actionButton={(
-              <div className="space-x-5 flex">
+              <div className="space-x-5 flex mr-2">
                 <Button
                   onClick={handleClearFilter }
                   disabled={!hasActiveFilter}

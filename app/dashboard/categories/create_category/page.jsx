@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'froala-editor/css/froala_editor.pkgd.min.css';
@@ -12,8 +12,10 @@ import Textarea from '@/components/ui/Textarea';
 import Fileinput from '@/components/ui/Fileinput';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
-import Switch from '@/components/ui/Switch';
 import { createCategory, getCategories } from '@/lib/api';
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ReactSelect = dynamic(() => import('@/components/partials/froms/ReactSelect'), { ssr: false });
 const FroalaEditorComponent = dynamic(() => import('react-froala-wysiwyg'), { ssr: false });
@@ -28,248 +30,405 @@ const editorConfig = {
     'bold', 'italic', 'underline', 'strikeThrough',
     'formatOL', 'formatUL', 'insertLink', 'insertImage'
   ],
-  pluginsEnabled: ['align', 'charCounter', 'link', 'image', 'lists']
+  pluginsEnabled: ['align', 'charCounter', 'link', 'image', 'lists'],
+  branding: false
 };
 
 const CreateCategory = () => {
   const [categories, setCategories] = useState([]);
-  const [cateActive, setCateActive] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [status, setStatus] = useState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
-    image: '',
-    parent_category: '',
-    order_number: '',
-    status: '',
-    name: '',
-    description: '',
-    type: '',
-    visible_in_home: 0,
-    company_only: 0,
-    rera_required: 0,
-    dynamic_pricing: 0,
-    seo_url: '',
-    seo_title: '',
-    seo_keywords: '',
-    seo_description: '',
-    footer_description: '',
-    footer_title: '',
-    schema_code: '',
-    payment_gateway: 0
+  const {
+    register,
+    handleSubmit,
+    setError,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: '',
+      type: '',
+      parent_category: '',
+      description: '',
+      order_number: '',
+      visible_in_home: false,
+      company_only: false,
+      rera_required: false,
+      dynamic_pricing: false,
+      seo_url: '',
+      seo_title: '',
+      seo_keywords: '',
+      seo_description: '',
+      footer_title: '',
+      schema_code: '',
+      footer_description: '',
+      payment_gateway: false,
+      status: 0,
+    }
   });
 
-  const { register, handleSubmit, setError, formState: { errors } } = useForm();
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCheckboxChange = (name) => {
-    setFormData((prev) => ({ ...prev, [name]: prev[name] === 1 ? 0 : 1 }));
-  };
-
-  const handleSelectChange = (selectedOption, { name }) => {
-    setFormData((prev) => ({ ...prev, [name]: selectedOption.value }));
-  };
-
-  const handleParentChange = (selectedOption) => {
-    setFormData((prev) => ({ ...prev, parent_category: selectedOption ? selectedOption.value : '' }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setFormData((prev) => ({ ...prev, image: file }));
-    }
-  };
-
   useEffect(() => {
-    const fetchParentCategories = async () => {
+    async function fetchParentCategories() {
       try {
         const response = await getCategories({ type: 'parent' });
-        if (response.status === true && Array.isArray(response.data)) {
-          const transformed = response.data
-            .map((item) => ({
-              ...item,
-              status: item.status ? 1 : 0,
-              parent: item.parent ? item.parent.name : null
-            }))
-            .filter((item) => item.parent === null && item.status === 1);
-
-          setCategories(transformed);
+        if (response.status && Array.isArray(response.data)) {
+          const filtered = response.data.filter(cat => !cat.parent && cat.status);
+          setCategories(filtered.map(cat => ({ value: cat.id, label: cat.name })));
         }
       } catch (err) {
-        console.error('Error fetching parent categories', err);
+        console.error(err);
+      } finally {
+        setLoadingCategories(false);
       }
-    };
-
+    }
     fetchParentCategories();
   }, []);
 
-  const onSubmit = async () => {
-    setStatus('Submitting...');
+  const onSubmit = async (data) => {
+     setIsSubmitting(true); 
     try {
-      await createCategory(formData);
-      setStatus('Category created successfully');
-      setFormData({
-        image: '', parent_category: '', order_number: '', status: '', name: '', description: '', type: '',
-        visible_in_home: 0, company_only: 0, rera_required: 0, dynamic_pricing: 0,
-        seo_url: '', seo_title: '', seo_keywords: '', seo_description: '',
-        footer_description: '', footer_title: '', schema_code: '', payment_gateway: 0
+      const formData = new FormData();
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, typeof value === 'boolean' ? (value ? '1' : '0') : value);
+        }
       });
-    } catch (error) {
-      if (error.response?.data?.errors) {
-        Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-          setError(field, { type: 'server', message: messages[0] });
-        });
-      } else {
-        console.error('Unexpected error:', error);
+
+      if (selectedFile) {
+        formData.append('image', selectedFile);
       }
+
+      await createCategory(formData);
+
+      toast.success('Category created successfully');
+      reset();
+      setSelectedFile(null);
+    } catch (error) {
+      if (error.response?.status === 422) {
+        const serverErrors = error.response.data.errors;
+        Object.entries(serverErrors).forEach(([field, messages]) => {
+          setError(field, {
+            type: 'server',
+            message: messages[0],
+          });
+        });
+        toast.error('Please fix the errors in the form');
+      } else {
+        console.error(error);
+        toast.error('An unexpected error occurred');
+      }
+    }finally{
+      setIsSubmitting(false); 
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid xl:grid-cols-1 grid-cols-1 gap-5">
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data" noValidate>
         <Card>
           <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-700 -mx-6 px-6 pb-4">
             <h2 className="text-2xl font-semibold text-slate-800 dark:text-slate-300">Create Category</h2>
-            <Button type="submit" text="Save" className="btn-dark" />
+            <Button 
+            type="submit" 
+            text={isSubmitting ? "Submitting..." : "Save"} 
+            className="btn-dark" 
+            disabled={isSubmitting}
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 my-8 gap-5 mr-24">
-            <div className="flex justify-between items-center col-span-1 md:col-span-2">
-              <h4 className="text-base text-slate-800 dark:text-slate-300">Category information</h4>
-              <Switch
-                label="Active"
-                value={cateActive}
-                onChange={() => setCateActive(!cateActive)}
-                activeText="Active"
-                inactiveText="Inactive"
-              />
-            </div>
+          <div className='grid grid-cols-2 mb-4'>
+            <Fileinput
+              name="image"
+              label="Category Image"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setSelectedFile(file);
+              }}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+              className="mt-6"
+            />
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          {/* Row 1: Name, Type, Parent Category */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Textinput
               name="name"
-              value={formData.name}
-              onChange={handleInputChange}
+              label="Category Name *"
               register={register}
               validation={{ required: 'Category name is required' }}
               error={errors.name}
-              label="Category name"
-              type="text"
-              horizontal
             />
 
-            <div className="flex items-center gap-4">
-              <label className="form-label capitalize w-[100px]">Select Type</label>
-              <div className="w-full max-w-[350px]">
-                <SelectOrSkeleton
-                validation={{required: 'Type is required'}}
-                error={errors.type}
-                  name="type"
-                  onChange={handleSelectChange}
-                  options={[
-                    { value: '1', label: 'Property' },
-                    { value: '2', label: 'No Property' },
-                    { value: '3', label: 'Residential' },
-                    { value: '4', label: 'Commercial' },
-                    { value: '5', label: 'Rooms/Bedspace' }
-                  ]}
-                  value={{ value: formData.type, label: formData.type }}
-                  placeholder="Type"
-                />
-              </div>
+            <div className="flex flex-col">
+              <label className="form-label capitalize mb-2">Type *</label>
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: 'Type is required' }}
+                render={({ field, fieldState }) => (
+                  <ReactSelect
+                    {...field}
+                    options={[
+                      { value: '1', label: 'Property' },
+                      { value: '2', label: 'No Property' },
+                      { value: '3', label: 'Residential' },
+                      { value: '4', label: 'Commercial' },
+                      { value: '5', label: 'Rooms/Bedspace' }
+                    ]}
+                    onChange={option => field.onChange(option?.value)}
+                    value={[
+                      { value: '1', label: 'Property' },
+                      { value: '2', label: 'No Property' },
+                      { value: '3', label: 'Residential' },
+                      { value: '4', label: 'Commercial' },
+                      { value: '5', label: 'Rooms/Bedspace' }
+                    ].find(opt => opt.value === field.value) || null}
+                    placeholder="Select Type"
+                    error={fieldState.error}
+                  />
+                )}
+              />
             </div>
 
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              validation={{required: 'The description field is required'}}
-              register={register}
-              error={errors.description}
-              label="Description"
-              rows="1"
-              horizontal
-              className="w-full max-w-[350px]"
-            />
-
-            <div className="flex items-center gap-4">
-              <label className="form-label capitalize w-[100px]">Select Parent Category</label>
-              <div className="w-full max-w-[350px]">
-                <SelectOrSkeleton
-                  name="parent_category"
-                  error={errors.parent_category}
-                  validation={{required: 'Categiory required'}}
-                  options={categories.map((cat) => ({ value: cat.id, label: cat.name }))}
-                  value={categories.find(opt => opt.value === formData.parent_category)}
-                  onChange={handleParentChange}
-                  placeholder="Main Category"
-                />
-              </div>
-            </div>
-
-            <Textinput
-              name="order_number"
-              value={formData.order_number}
-              onChange={handleInputChange}
-              register={register}
-              error={errors.order_number}
-              label="Order Number"
-              type="number"
-              horizontal
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 mt-6 ml-32 gap-32">
-            <Checkbox label="Show in home page" name="visible_in_home" register={register} error={errors.visible_in_home} value={formData.visible_in_home === 1} onChange={() => handleCheckboxChange('visible_in_home')} />
-            <Checkbox label="Company account required for posting ads" name="company_only" register={register} error={errors.company_only} value={formData.company_only === 1} onChange={() => handleCheckboxChange('company_only')} />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 mt-6 ml-32 gap-32">
-            <Checkbox label="Rera fields" name="rera_required" register={register} error={errors.rera_required} value={formData.rera_required === 1} onChange={() => handleCheckboxChange('rera_required')} />
-            <Checkbox label="Dynamic Pricing" name="dynamic_pricing" register={register} error={errors.dynamic_pricing} value={formData.dynamic_pricing === 1} onChange={() => handleCheckboxChange('dynamic_pricing')} />
-          </div>
-
-          <h4 className="text-base text-slate-800 dark:text-slate-300 my-8">SEO information</h4>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <Textinput name="seo_title" value={formData.seo_title} onChange={handleInputChange} register={register} label="SEO Title" type="text" horizontal />
-            <Textinput name="seo_url" value={formData.seo_url} onChange={handleInputChange} register={register} label="SEO Url" type="text" horizontal />
-            <Textinput name="seo_keywords" value={formData.seo_keywords} onChange={handleInputChange} register={register} label="SEO Keywords" type="text" horizontal />
-            <Textinput name="seo_description" value={formData.seo_description} onChange={handleInputChange} register={register} label="SEO Description" type="text" horizontal />
-          </div>
-
-          <Textarea name="schema_code" value={formData.schema_code} onChange={handleInputChange} register={register} label="Schema Code" rows="1" horizontal className="w-full max-w-[350px]" />
-
-          <h4 className="text-slate-800 dark:text-slate-300 my-8 text-base">Footer information</h4>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <Textinput name="footer_title" value={formData.footer_title} onChange={handleInputChange} register={register} label="Frontend Footer Title" type="text" horizontal />
-
-            <div className="xl:col-span-2 ml-32">
-              <FroalaEditorComponent
-                name="footer_description"
-                model={formData.footer_description}
-                onModelChange={(value) => setFormData((prev) => ({ ...prev, footer_description: value }))}
-                config={editorConfig}
-                tag="textarea"
+            <div className="flex flex-col">
+              <label className="form-label capitalize mb-2">Parent Category *</label>
+              <Controller
+                name="parent_category"
+                control={control}
+                rules={{ required: 'Parent category is required' }}
+                render={({ field, fieldState }) => (
+                  <ReactSelect
+                    loading={loadingCategories}
+                    {...field}
+                    options={categories}
+                    onChange={(option) => field.onChange(option?.value)}
+                    value={categories.find(opt => opt.value === field.value) || null}
+                    placeholder="Select Parent Category"
+                    error={fieldState.error}
+                  />
+                )}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 mt-6 ml-32 gap-32">
-            <Checkbox label="Enable Payment Gateway" name="payment_gateway" value={formData.payment_gateway === 1} onChange={() => handleCheckboxChange('payment_gateway')} register={register} />
+          {/* Row 2: Description & Order Number */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <Textarea
+              name="description"
+              label="Description *"
+              placeholder=""
+              register={register}
+              validation={{ required: 'Description is required' }}
+              error={errors.description}
+              rows={3}
+              className="md:col-span-2"
+            />
+            <Textinput
+              name="order_number"
+              label="Order Number"
+              type="number"
+              register={register}
+              validation={{
+                required: 'Order number is required',
+                min: { value: 1, message: 'Order number must be at least 1' }
+              }}
+              error={errors.order_number}
+            />
           </div>
 
-          <Fileinput name="image" label="Category Image" onChange={handleFileChange} selectedFile={formData.image} setSelectedFile={(file) => setFormData((prev) => ({ ...prev, image: file }))} />
+          {/* Checkboxes */}
+          <div className="w-full mt-6">
+            <div className="flex flex-wrap gap-x-10 gap-y-4 w-full mb-7">
+              <div>
+                <Controller
+                  name="visible_in_home"
+                  control={control}
+                  rules={{ required: 'Visible in home is required' }}
+                  render={({ field }) => (
+                    <Checkbox
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      label="Show in home page"
+                    />
+                  )}
+                />
+                {errors.visible_in_home && (
+                  <p className="text-red-600 text-sm mt-1 w-full">{errors.visible_in_home.message}</p>
+                )}
+              </div>
+              <div>
+                <Controller
+                  name="company_only"
+                  control={control}
+                  rules={{ required: 'Company only is required' }}
+                  render={({ field }) => (
+                    <Checkbox
+                      {...field}
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      label="Company account required for posting ads"
+                    />
+                  )}
+                />
+                {errors.company_only && (
+                  <p className="text-red-600 text-sm mt-1 w-full">{errors.company_only.message}</p>
+                )}
+              </div>
+              <div>
+                <Controller
+                  name="rera_required"
+                  control={control}
+                  rules={{ required: 'Rera required is required' }}
+                  render={({ field }) => (
+                    <Checkbox
+                      {...field}
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      label="Rera fields"
+                    />
+                  )}
+                />
+                {errors.rera_required && (
+                  <p className="text-red-600 text-sm mt-1 w-full">{errors.rera_required.message}</p>
+                )}
+              </div>
+              <div>
+                <Controller
+                  name="dynamic_pricing"
+                  control={control}
+                  rules={{ required: 'Dynamic pricing is required' }}
+                  render={({ field }) => (
+                    <Checkbox
+                      {...field}
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      label="Dynamic Pricing"
+                    />
+                  )}
+                />
+                {errors.dynamic_pricing && (
+                  <p className="text-red-600 text-sm mt-1 w-full">{errors.dynamic_pricing.message}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* SEO and Other Fields */}
+          <div className="mb-7">
+            <label className="block font-medium text-slate-700 dark:text-slate-300 mb-2">
+              SEO Details
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Textinput
+                name="seo_title"
+                label="SEO Title"
+                placeholder=''
+                register={register}
+                error={errors.seo_title}
+                validation={{ required: 'seo title required' }}
+              />
+              <Textinput
+                name="seo_url"
+                label="SEO URL"
+                placeholder=''
+                register={register}
+                error={errors.seo_url}
+                validation={{ required: 'seo url required' }}
+              />
+              <Textinput
+                name="seo_keywords"
+                label="SEO Keywords"
+                placeholder=''
+                register={register}
+                error={errors.seo_keywords}
+                validation={{ required: 'seo key words required' }}
+              />
+              <Textinput
+                name="seo_description"
+                label="SEO Description"
+                placeholder=''
+                register={register}
+                error={errors.seo_description}
+                validation={{ required: 'seo description required' }}
+              />
+              <Textinput
+                name="footer_title"
+                label="Frontend Footer Title"
+                placeholder=''
+                register={register}
+                error={errors.footer_title}
+                validation={{ required: 'Frontend Footer Title required' }}
+              />
+              <Textarea
+                name="schema_code"
+                label="Schema Code"
+                register={register}
+                rows={3}
+                className="mt-1"
+                error={errors.schema_code}
+                validation={{ required: 'Schema Code required' }}
+              />
+            </div>
+          </div>
+
+          <div className="mb-4 mt-6">
+            <label className="form-label">Footer Description</label>
+
+            <Controller
+              name="footer_description"
+              control={control}
+              rules={{
+                required: "Footer Description is required",
+                minLength: {
+                  value: 10,
+                  message: "Footer Description must be at least 10 characters",
+                },
+              }}
+              render={({ field, fieldState }) => (
+                <>
+                  <FroalaEditorComponent
+                    model={field.value}
+                    onModelChange={field.onChange}
+                    config={editorConfig}
+                    tag="textarea"
+                  />
+                  {fieldState.error && (
+                    <p className="text-red-600 text-sm mt-1">{fieldState.error.message}</p>
+                  )}
+                </>
+              )}
+            />
+          </div>
+
+          <Controller
+            name="payment_gateway"
+            control={control}
+            rules={{ required: 'The payment gateway field is required' }}
+            render={({ field }) => (
+              <Checkbox
+                {...field}
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                label="Enable Payment Gateway"
+                className="mt-6"
+              />
+            )}
+          />
+          {errors.payment_gateway && (
+            <p className="text-red-600 text-sm mt-1">{errors.payment_gateway.message}</p>
+          )}
         </Card>
-      </div>
-    </form>
+      </form>
+
+      {/* Toast Container to show toasts */}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 };
 

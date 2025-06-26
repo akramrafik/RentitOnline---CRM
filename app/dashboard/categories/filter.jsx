@@ -3,6 +3,7 @@ import ReactSelect from "@/components/partials/froms/ReactSelect";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import Card from "@/components/ui/Card";
+import ReactSelectFilter from "@/components/partials/froms/ReactSelectFIlter";
 import { getCategories } from "@/lib/api";
 
 const SelectOrSkeleton = ({ loading, ...props }) =>
@@ -80,10 +81,9 @@ const CategoryFilter = ({ onSearch, type, setType, parentId, setParentId }) => {
   };
 
   return (
-    <Card>
       <div className="space-y-5">
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          <SelectOrSkeleton
+          <ReactSelectFilter
             loading={loading}
             value={selectedTypeOption}
             onChange={handleTypeChange}
@@ -91,7 +91,7 @@ const CategoryFilter = ({ onSearch, type, setType, parentId, setParentId }) => {
             placeholder="Category type"
           />
 
-          <SelectOrSkeleton
+          <ReactSelectFilter
             loading={loading}
             value={selectedParentOption}
             onChange={handleParentChange}
@@ -101,15 +101,14 @@ const CategoryFilter = ({ onSearch, type, setType, parentId, setParentId }) => {
             }))}
             placeholder="Category options"
           />
-          <input
+          {/* <input
             type="text"
             className="border px-3 py-2 rounded w-full"
             placeholder="Search by name..."
             onChange={handleInputChange}
-          />
+          /> */}
         </div>
       </div>
-    </Card>
   );
 };
 
