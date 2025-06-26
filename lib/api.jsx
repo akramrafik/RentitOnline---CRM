@@ -704,4 +704,47 @@ return response.data;
   console.error("error updating data", error)
 }
 };
+
+//getReferralHistory
+export const getReferralHistory = async() => {
+try{
+await csrf();
+const response = await api.get(
+  `${process.env.NEXT_PUBLIC_API_VERSION}/referral-history`,)
+return response.data;
+}catch(error){
+  console.error("error getting data", error)
+}
+};
+
+//getReferrawithdraw ststus
+export const getReferralWithdraw = async() => {
+try{
+await csrf();
+const response = await api.get(
+  `${process.env.NEXT_PUBLIC_API_VERSION}/referral-withdraw`,)
+return response.data;
+}catch(error){
+  console.error("error getting data", error)
+}
+};
+//update referral status
+export const changeWithdrawStatus = async (request_id, status) => {
+  try {
+    await csrf();
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/referral-withdraw/change-status/${request_id}`,
+      { status }
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response?.data) {
+      return error.response.data; 
+    }
+    console.error("Error updating status:", error);
+    throw error; 
+  }
+};
+
+
 export default api;

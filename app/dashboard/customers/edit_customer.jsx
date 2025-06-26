@@ -11,8 +11,6 @@ const EditCustomer = ({ id, onSuccess }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [loading, setLoading] = useState(false);
  const [submitting, setSubmitting] = useState(false);
-
-
   const { register, handleSubmit, reset, setValue, watch,formState: { errors }, setError, } = useForm({
     defaultValues: {
       first_name: "",
@@ -65,27 +63,29 @@ reset({
     fetchCustomer();
   }, [id, reset]);
 
-  const onSubmit = async (formData) => {
-    setSubmitting(true);
-    try {
-     await updateCustomer({ customer_id: id, formData });
-      toast.success("Customer updated successfully");
-      if (onSuccess) onSuccess();
-    } catch (error) {
-     if(
-        error?.response.data?.error && typeof error.response.data.error === "object"
-     ){
-       const serverErrors = error.response.data.errors;
-       Object.entries(serverErrors).forEach(([field,messages]) => {
-         setError(field, { type: "server", message: messages[0] });
-       });
-     }else{
-        toast.error("Update failed");
-     }
-    }finally{
-        setSubmitting(false);
+ const onSubmit = async (formData) => {
+  setSubmitting(true);
+  try {
+    await updateCustomer({ customer_id: id, formData });
+    toast.success("Customer updated successfully");
+    if (onSuccess) onSuccess();
+  } catch (error) {
+    const serverErrors = error?.response?.data?.errors;
+    if (serverErrors && typeof serverErrors === "object") {
+      Object.entries(serverErrors).forEach(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          setError(field, { type: "server", message: messages[0] });
+        }
+      });
+    } else {
+      toast.error("Update failed");
     }
-  };
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
   const statusOptions = [
     { label: "Active", value: "1" },
     { label: "Inactive", value: "0" },
@@ -100,16 +100,15 @@ reset({
       <Textinput 
       label="First Name" 
       name="first_name" 
-      register={register} 
-        validation={{ required: "First name is required" }}
-        error={errors.first_name}
+      register={register}
+      error={errors.first_name}
       />
       <Textinput 
       label="Last Name" 
       name="last_name" 
       register={register} 
-         validation={{ required: "Last name is required" }}
         error={errors.last_name}
+        placeholder=""
       />
       <Textinput
         label="Mobile"
@@ -117,18 +116,20 @@ reset({
         register={register}
         type="tel"
         inputMode="numeric"
+        placeholder=""
         validation={{
-          required: "Mobile number is required",
-          pattern: {
-            value: /^[0-9]{9}$/,
-            message: "Mobile must be exactly 9 digits",
-          },
-        }}
+    required: "Mobile number is required",
+    pattern: {
+      value: /^[1-9][0-9]{8}$/,
+      message: "Mobile must be 9 digits and cannot start with 0",
+    },
+  }}
         error={errors.mobile}
       />
       <Textinput
       label="Email"
       name="email"
+      placeholder=""
       register={register} 
         type="email"
         validation={{
@@ -144,7 +145,7 @@ reset({
         label="Register Date"
         name="register_date"
         register={register}
-        readOnly
+        readonly
       />
 
       <ReactSelect

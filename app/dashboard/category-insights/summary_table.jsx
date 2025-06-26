@@ -191,6 +191,7 @@ const LocationCountsTable = ({ types = [], locations = [], loading = false, curr
           window.history.pushState({}, "", url);
           window.dispatchEvent(new Event("popstate")); 
         }}
+        className="mt-4"
       />
     </Card>
   );

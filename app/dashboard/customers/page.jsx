@@ -11,7 +11,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-
 import Card from "@/components/ui/Card";
 import Swicth from "@/components/ui/Switch";
 import Tooltip from "@/components/ui/Tooltip";
@@ -21,6 +20,7 @@ import ConfirmDialog from "@/components/partials/ConfirmPopup";
 import BaseTable from "@/components/partials/table/BaseTable";
 import {getCustomersList,updateCustomerStatus, deleteCustomer } from "@/lib/api";
 import EditCustomer from "./edit_customer";
+import Button from "@/components/ui/Button";
 
 const CustomerList = () => {
   const router = useRouter();
@@ -41,8 +41,9 @@ const CustomerList = () => {
   const [isPending, startTransition] = useTransition();
 
   const memoParams = useMemo(() => ({}), []);
+  const hasActiveFilter = !!filter;
 
-  // 1. URL params => state on load
+  // URL params => state on load
   useEffect(() => {
     const initialSearch = searchParams.get("q") || "";
     const pageFromUrl = parseInt(searchParams.get("page") || "1", 10);
@@ -53,7 +54,7 @@ const CustomerList = () => {
     setHasInitialized(true);
   }, [searchParams]);
 
-  // 2. State => URL sync
+  // State => URL sync
   useEffect(() => {
     if (!hasInitialized || isInternalUpdate.current) {
       isInternalUpdate.current = false;
@@ -71,7 +72,7 @@ const CustomerList = () => {
     }
   }, [filter, pageIndex, hasInitialized]);
 
-  // 3. Debounced filter setter
+  // Debounced filter setter
   const debouncedSetFilter = useMemo(() => {
     return debounce((value) => {
       startTransition(() => {
@@ -83,7 +84,7 @@ const CustomerList = () => {
 
   useEffect(() => () => debouncedSetFilter.cancel(), []);
 
-  // 4. Fetch function
+  // Fetch function
   const fetchCustomers = useCallback(async ({ pageIndex, q }) => {
     setLoading(true);
     const params = { page: pageIndex + 1 };
@@ -99,7 +100,7 @@ const CustomerList = () => {
     }
   }, []);
 
-  // 5. Delete
+  // Delete
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
 
@@ -118,6 +119,21 @@ const CustomerList = () => {
       toast.error("Failed to delete customer");
     }
   };
+
+  // handle clear
+const handleClearFilter = () => {
+  startTransition(() => {
+    setPageIndex(0);
+    setFilter("");
+
+    const params = new URLSearchParams();
+    // No need to set any query param since we're clearing
+    const nextUrl = "?";
+    isInternalUpdate.current = true; // prevent feedback loop
+    router.replace(nextUrl);
+  });
+};
+
 
   const columns = useMemo(
     () => [
@@ -228,6 +244,18 @@ const CustomerList = () => {
           setFilter={debouncedSetFilter}
           showGlobalFilter
           refreshKey={refreshKey}
+          actionButton={(
+            <Button
+  onClick={handleClearFilter}
+  disabled={!hasActiveFilter}
+  icon="heroicons-outline:refresh"
+  text="Clear filter"
+  className={`bg-white text-primary-500 py-1 mx-0 ${
+    !hasActiveFilter ? "opacity-50 cursor-not-allowed" : ""
+  }`}
+/>
+
+          )}
         />
       </Card>
 

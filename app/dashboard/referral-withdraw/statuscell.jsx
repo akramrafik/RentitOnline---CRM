@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import ReactSelect from "@/components/partials/froms/ReactSelect";
-import { updateAdStatus } from "@/lib/api";
+import { changeWithdrawStatus } from "@/lib/api";
 
 const STATUS_OPTIONS = [
-  { value: "0", label: "Under Review", color: "orange" },
-  { value: "1", label: "Live", color: "green" },
-  { value: "2", label: "Draft", color: "gray" },
-  { value: "3", label: "Payment Pending", color: "amber" },
-  { value: "4", label: "Rejected", color: "red" },
-  { value: "5", label: "DLD Failed", color: "pink" },
-  { value: "6", label: "Expired", color: "slate" },
+  { value: "0", label: "Pending", color: "orange" },
+  { value: "1", label: "Completed", color: "green" },
+  { value: "2", label: "Rejected", color: "red" },
 ];
 
 const TAILWIND_COLORS = {
@@ -23,7 +19,7 @@ const TAILWIND_COLORS = {
   slate: "#64748b",
 };
 
-const StatusCell = ({ adId, statusLabel, onStatusChange }) => {
+const StatusCell = ({ referral_id, statusLabel, onStatusChange }) => {
   const selectedOption =
     STATUS_OPTIONS.find((opt) => opt.label === statusLabel) || STATUS_OPTIONS[0];
   const [currentOption, setCurrentOption] = useState(selectedOption);
@@ -72,29 +68,42 @@ const StatusCell = ({ adId, statusLabel, onStatusChange }) => {
     indicatorSeparator: () => ({ display: "none" }),
   };
 
-  const handleStatusChange = async (selected) => {
+  const handleReferralStatus = async (selected) => {
+  let res;
+  try {
+    res = await changeWithdrawStatus(referral_id, selected.value);
+  } catch (err) {
+    console.error("Request failed:", err);
+    toast.error("An unexpected error occurred");
+    return;
+  }
+
+  if (res?.status === true) {
+    setCurrentOption(selected);
+    toast.success(`Referral Id ${referral_id} status updated to ${selected.label}`);
     try {
-      await updateAdStatus(adId, selected.value);
-      setCurrentOption(selected);
-      toast.success(`Ad ${adId} status updated to ${selected.label}`);
-      if (onStatusChange) onStatusChange();
+      if (onStatusChange) onStatusChange(); // if this throws, catch below
     } catch (err) {
-      console.error("Failed to update status:", err);
-      toast.error("Failed to update status");
+      console.error("onStatusChange failed:", err);
     }
-  };
+  } else {
+    toast.error(res?.message || "Failed to update status");
+  }
+};
+
+
 
   return (
-    <ReactSelect
+   <ReactSelect
   options={STATUS_OPTIONS}
   value={currentOption}
-  onChange={handleStatusChange}
+  onChange={handleReferralStatus}
   isSearchable={false}
   styles={{
     ...customStyles,
     menuPortal: (base) => ({
       ...base,
-      zIndex: 9999, // ⬅ ensures dropdown is above table/modals
+      zIndex: 9999, // make sure it floats above everything
     }),
   }}
   menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
@@ -105,7 +114,7 @@ const StatusCell = ({ adId, statusLabel, onStatusChange }) => {
         className={`w-5 h-2 rounded-full`}
         style={{ backgroundColor: TAILWIND_COLORS[e.color] }}
       />
-      <span className="text-sm font-medium">{e.label}</span>
+      <span className="text-sm font-medium min-[120px]:">{e.label}</span>
     </div>
   )}
   formatOptionLabel={(e) => (
@@ -118,6 +127,7 @@ const StatusCell = ({ adId, statusLabel, onStatusChange }) => {
     </div>
   )}
 />
+
   );
 };
 

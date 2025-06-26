@@ -15,7 +15,7 @@ import Toolbar from "@/components/partials/Toolbar";
 import { toast } from "react-toastify";
 import ConfirmDialog from "@/components/partials/ConfirmPopup";
 
-const GetAds = () => {
+const GetReferralCampaigns = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -304,4 +304,4 @@ const ReferralTypeBadge = ({ label }) => {
   );
 };
 
-export default GetAds;
+export default GetReferralCampaigns;
