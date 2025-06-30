@@ -14,7 +14,7 @@ const CommonDropdown = ({
   className = '',
   labelClass = '',
   buttonClass = '',
-  menuItemsClass = 'mt-2 w-[750px]',
+  menuItemsClass = 'mt-2 w-[750px] max-w-[90vw] sm:w-[90vw] md:w-[750px]',
   itemClass = 'px-4 py-2',
   contentWrapperClass = '',
   header = null,
@@ -46,7 +46,7 @@ const CommonDropdown = ({
               leaveTo="transform opacity-0 scale-95"
             >
               <Popover.Panel 
-                className={`absolute z-[9999] ltr:right-0 rtl:left-0 origin-top-right rounded border border-slate-100 bg-white dark:bg-slate-800 dark:border-slate-700 shadow-dropdown ${menuItemsClass}`}
+                className={`absolute z-[9999] ltr:right-0 rtl:left-0 origin-top-right max-h-[80vh] rounded border border-slate-100 bg-white dark:bg-slate-800 dark:border-slate-700 shadow-dropdown ${menuItemsClass}`}
               >
                 <div className={`relative ${contentWrapperClass}`}>
                   {header && (

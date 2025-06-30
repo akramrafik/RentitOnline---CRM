@@ -9,18 +9,18 @@ import React, {
 import { useSearchParams, useRouter } from "next/navigation";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-
 import Card from "@/components/ui/Card";
 import BaseTable from "@/components/partials/table/BaseTable";
 import CategoryFilter from "./filter";
-import { getCategories, updateCategoryStatus } from "@/lib/api";
+import { getCategories, updateCategoryStatus, deleteCategory } from "@/lib/api";
 import Switch from "@/components/ui/Switch";
 import Icon from "@/components/ui/Icon";
 import Tooltip from "@/components/ui/Tooltip";
 import Button from "@/components/ui/Button";
 import CommonDropdown from "@/components/ui/Common-dropdown";
+import ConfirmDialog from "@/components/partials/ConfirmPopup";
 
-// ✅ Memoized status cell for performance
+// Memoized status cell for performance
 const StatusCell = React.memo(({ row }) => {
  const [status, setStatus] = useState(Boolean(Number(row.original.status)));
   const [loading, setLoading] = useState(false);
@@ -65,6 +65,12 @@ const CategoriesPage = () => {
   const [parentId, setParentId] = useState("");
   const [categories, setCategories] = useState([]);
   const [, startTransition] = useTransition();
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [actionType, setActionType] = useState(""); 
+  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+
 
   // Initialize state from URL params
  useEffect(() => {
@@ -136,7 +142,10 @@ useEffect(() => {
             <Tooltip content="Edit">
               <button
                 className="action-btn"
-                onClick={() => alert(`Edit ${row.original.id}`)}
+                onClick={() => {
+                  setSelectedItem(row.original);
+                  setActionType("edit");
+                }}
               >
                 <Icon icon="heroicons:pencil-square" />
               </button>
@@ -144,18 +153,31 @@ useEffect(() => {
             <Tooltip content="Delete" theme="danger">
               <button
                 className="action-btn"
-                onClick={() => alert(`Delete ${row.original.id}`)}
+                onClick={() => {
+                  setSelectedItem(row.original);
+                  setActionType("delete");
+                }}
               >
                 <Icon icon="heroicons:trash" />
               </button>
             </Tooltip>
             <Tooltip content="Specifications">
-              <button className="action-btn">
+              <button className="action-btn"
+               onClick={() => {
+                setSelectedItem(row.original);
+                setActionType("specs");
+               }}
+               >
                 <Icon icon="heroicons:document-text" />
               </button>
             </Tooltip>
             <Tooltip content="FAQ">
-              <button className="action-btn">
+              <button className="action-btn"
+              onClick={() => {
+                setSelectedItem(row.original);
+                setActionType("faqs");
+              }}
+              >
                 <Icon icon="heroicons:circle-stack" />
               </button>
             </Tooltip>
@@ -165,6 +187,20 @@ useEffect(() => {
     ],
     []
   );
+
+  // action
+  useEffect(() => {
+  if (!selectedItem) return;
+
+  if (actionType === "edit") {
+    router.push(`/dashboard/categories/${selectedItem.id}/edit`);
+  } else if (actionType === "specs") {
+    router.push(`/dashboard/categories/${selectedItem.id}/specification-groups`);
+  } else if (actionType === "faqs") {
+    router.push(`/dashboard/categories/${selectedItem.id}/faqs`);
+  }
+}, [selectedItem, actionType]);
+
 
   // API call to fetch category list
   const fetchCategoryData = useCallback(
@@ -185,6 +221,30 @@ useEffect(() => {
     [filter, type, parentId]
   );
 
+  // handleDeleteCancel
+  const handleDeleteCancel = () => {
+  setSelectedItem(null);
+  setActionType("");
+};
+const handleDeleteConfirm = async () => {
+ if (!selectedItem || actionType !== "delete") return;
+  setDeleting(true);
+  try {
+   const res = await deleteCategory(selectedItem.id);
+    if (res?.status === true) {
+      toast.success("Category deleted successfully");
+    } else {
+      toast.error("Failed to delete category");
+    }
+  } catch (err) {
+    toast.error("An error occurred during deletion");
+    console.error("Delete error:", err);
+  } finally {
+    setLoading(false);
+    setSelectedItem(null);
+    setActionType("");
+  }
+};
   return (
     <div className="space-y-5">
       <Card>
@@ -242,7 +302,16 @@ useEffect(() => {
             </div>
           }
         />
+        
       </Card>
+      <ConfirmDialog
+isOpen={actionType === "delete" && !!selectedItem}
+  onClose={handleDeleteCancel}
+  onConfirm={handleDeleteConfirm}
+  title="Delete Category"
+ message={`Are you sure you want to delete the category "${selectedItem?.name}"? This action cannot be undone.`}
+  confirmDisabled={loading}
+/>
     </div>
   );
 };

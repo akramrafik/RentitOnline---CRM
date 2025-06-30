@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ReactSelect from "./froms/ReactSelect";
 import Flatpickr from "react-flatpickr";
 import { getDashboardData, getMonthlyAdsReport } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -17,8 +16,7 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  
-// fetching initial categories
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -34,25 +32,24 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
     };
     fetchCategories();
   }, []);
-// subcategory options
+
+  // Set subcategories on category change
   useEffect(() => {
     if (!selectedCategory || !categories.length) return;
-  
-    const selectedCat = categories.find(
-      cat => String(cat.id) == String(selectedCategory.value)
-    );
-  
-    if (!selectedCat) return;
-    const children = selectedCat?.child_categories || [];
-    setSubCategoryOptions(children.map(sub => ({
-      value: sub.id,
-      label: sub.name,
-    })));
 
+    const selectedCat = categories.find(
+      cat => String(cat.id) === String(selectedCategory.value)
+    );
+
+    if (!selectedCat) return;
+    const children = selectedCat.child_categories || [];
+    setSubCategoryOptions(
+      children.map(sub => ({ value: sub.id, label: sub.name }))
+    );
     setSelectedSubCategory(null);
   }, [selectedCategory, categories]);
 
-  // fetching filtered data
+  // Fetch filtered data
   useEffect(() => {
     const fetchFilteredData = async () => {
       if (!startDate || !endDate) return;
@@ -60,9 +57,9 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
         toast.error("Start date must be before or equal to end date.");
         return;
       }
+
       try {
         setLoading(true);
-
         const payload = {
           category: selectedCategory?.value ?? null,
           subcategory: selectedSubCategory?.value ?? null,
@@ -72,18 +69,13 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
 
         const response = await getMonthlyAdsReport(payload);
         const monthlyData = response?.data?.monthly_ads || {};
-        if (onDataUpdate) onDataUpdate(monthlyData);
+        onDataUpdate?.(monthlyData);
       } catch (error) {
         console.error("Error fetching filtered data:", error);
-        toast.error("Failed to fetch data.");
-        if (error?.response?.data?.errors) {
-          const { start_date, end_date } = error.response.data.errors;
-  
-          if (start_date?.length) toast.error(start_date[0]);
-          if (end_date?.length) toast.error(end_date[0]);
-        } else {
-          toast.error("Failed to fetch filtered data.");
-        }
+        toast.error("Failed to fetch filtered data.");
+        const { start_date, end_date } = error?.response?.data?.errors || {};
+        if (start_date?.length) toast.error(start_date[0]);
+        if (end_date?.length) toast.error(end_date[0]);
       } finally {
         setLoading(false);
       }
@@ -92,43 +84,54 @@ const FilterMonthlyData = ({ onDataUpdate }) => {
     fetchFilteredData();
   }, [startDate, endDate, selectedCategory, selectedSubCategory]);
 
-
   return (
-    <div className="grid gap-5 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
-      <div className="flex justify-between items-end space-x-5">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {/* Date Pickers */}
+      <div className="flex flex-col gap-2">
         <Flatpickr
-          className="form-control py-2 h-[42px] text-sm"
-          placeholder="Start Date"
-          value={startDate}
-          onChange={date => setStartDate(date[0])}
-        />
+  value={startDate}
+  onChange={date => setStartDate(date[0])}
+  options={{ dateFormat: "d-m-Y" }}
+  className="w-full border rounded px-3 py-2 text-sm"
+  placeholder="Start Date"
+/>
+
+      </div>
+
+      <div className="flex flex-col gap-2">
         <Flatpickr
-          className="form-control py-2 h-[42px] text-sm"
-          placeholder="End Date"
-          value={endDate}
-          onChange={date => setEndDate(date[0])}
+  value={endDate}
+  onChange={date => setEndDate(date[0])}
+  options={{ dateFormat: "d-m-Y" }}
+  className="w-full border rounded px-3 py-2 text-sm"
+  placeholder="End Date"
+/>
+
+      </div>
+
+      {/* Category Select */}
+      <div className="flex flex-col gap-2">
+        <ReactSelectFilter
+          className="h-[42px] text-sm"
+          placeholder="Choose Category"
+          options={categoryOptions}
+          value={selectedCategory}
+          onChange={setSelectedCategory}
+          isDisabled={loading}
         />
       </div>
-      <ReactSelectFilter
-       className="h-[42px] text-sm"
-        placeholder="Choose Category"
-        options={categoryOptions}
-        value={selectedCategory}
-        onChange={(option) => {
-    setSelectedCategory(option);
-  }}
-        isDisabled={loading}
-      />
 
-      <ReactSelectFilter
-        className="h-[42px] text-sm"
-        placeholder="Choose Sub Category"
-        options={subCategoryOptions}
-        value={selectedSubCategory}
-        onChange={setSelectedSubCategory}
-        isDisabled={!subCategoryOptions.length || loading}
-      />
-
+      {/* Subcategory Select */}
+      <div className="flex flex-col gap-2 lg:col-span-1 md:col-span-2 col-span-1">
+        {/* <ReactSelectFilter
+          className="h-[42px] text-sm"
+          placeholder="Choose Sub Category"
+          options={subCategoryOptions}
+          value={selectedSubCategory}
+          onChange={setSelectedSubCategory}
+          isDisabled={!subCategoryOptions.length || loading}
+        /> */}
+      </div>
     </div>
   );
 };

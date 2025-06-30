@@ -232,8 +232,21 @@ export const getCategories = async (params = {}) => {
     throw error;
   }
 };
+ // delete category status
+export const deleteCategory = async (categoryId) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/delete/${categoryId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting category:", error);
+    throw error;
+  }
+};
 
-// categiry create
+// category create
 export const createCategory = async (formData) => {
     try {
       await csrf();
@@ -249,6 +262,74 @@ export const createCategory = async (formData) => {
     }
   };
 
+  // get specification according to catgeory id
+ export const getSpecificationGroupById = async (category_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/specification-groups`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch specification groups:", error);
+    throw error;
+  }
+};
+
+ //  deleteSpecificationGroup 
+export const deleteSpecificationGroup = async (category_id, group_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/specification-groups/delete/${group_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting category:", error);
+    throw error;
+  }
+};
+//  status chnage SpecificationGroup 
+export const changeSpecificationGroupStatus = async (category_id, group_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/specification-groups/toggle-status/${group_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting category:", error);
+    throw error;
+  }
+};
+
+// show SpecificationGroup 
+export const showSpecificationGroup = async (category_id, group_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/specification-groups/${group_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting category:", error);
+    throw error;
+  }
+};
+// update  SpecificationGroup
+export const updateSpecificationGroup = async (category_id, group_id, payload) => {
+  try {
+    await csrf();
+    const response = await api.put(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/specification-groups/update/${group_id}`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting category:", error);
+    throw error;
+  }
+};
   // get plan 
   export const getPlan = async() => {
     try{
@@ -421,7 +502,7 @@ export const getAds = async (adId = '', query = {}) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error updating category status:", error);
+    console.error("Error updating status:", error);
     throw error;
   }
 };
@@ -611,7 +692,7 @@ export const reportByEmirte = async() => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error updating category status:", error);
+    console.error("Error updating status:", error);
     throw error;
   }
 };

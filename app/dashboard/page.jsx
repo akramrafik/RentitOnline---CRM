@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import GroupChart3 from "@/components/partials/widget/chart/group-chart-3";
 import FilterMonthlyData from "@/components/partials/SelectMonth";
@@ -18,84 +18,68 @@ const CrmPage = () => {
   const [data, setData] = useState(null);
   const [filteredData, setFilteredData] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getDashboardData();
-        setData(response.data);
-        setFilteredData(response.data.monthly_ads);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      }
-    };
-
-    fetchData();
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await getDashboardData();
+      const dashboardData = response.data;
+      setData(dashboardData);
+      setFilteredData(dashboardData?.monthly_ads || []);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   const isLoading = !data;
+
+  const topCards = useMemo(() => (
+    <Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <SkeletonBox key={i} height="h-20" />)
+        ) : (
+          <GroupChart3 data={data} />
+        )}
+      </div>
+    </Card>
+  ), [isLoading, data]);
+
+  const overviewChart = useMemo(() => (
+    <Card
+      title="Overview"
+      headerslot={
+        !isLoading && (
+          <CommonDropdown
+            contentWrapperClass="rounded-lg filter-panel"
+            header="Filters"
+            label="Filter"
+            split
+            labelClass="btn-sm h-10 my-0 btn-outline-light"
+          >
+            <FilterMonthlyData onDataUpdate={setFilteredData} />
+          </CommonDropdown>
+        )
+      }
+    >
+      {isLoading ? <SkeletonBox height="h-[300px]" /> : <BasicArea data={filteredData} height={320} />}
+    </Card>
+  ), [isLoading, filteredData]);
+
+  const last7DaysChart = useMemo(() => (
+    <Card title="Last 7 Days">
+      {isLoading ? <SkeletonBox height="h-[300px]" /> : <BarChart />}
+    </Card>
+  ), [isLoading]);
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-12 gap-5">
-        {/* Top Summary Cards */}
-        <div className="col-span-12 space-y-5">
-         <Card>
-        
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-         
-            {isLoading ? (
-              <>
-                <SkeletonBox height="h-20" />
-                <SkeletonBox height="h-20" />
-                <SkeletonBox height="h-20" />
-                <SkeletonBox height="h-20" />
-              </>
-            ) : (
-              <GroupChart3 data={data} />
-            )}
-           
-          </div>
- </Card>
- </div>
-        {/* Overview Area Chart */}
-        <div className="col-span-12 lg:col-span-8 space-y-5">
-          <Card title="Overview"
-           headerslot={
-    !isLoading && (
-      <CommonDropdown
-        contentWrapperClass="rounded-lg filter-panel"
-        header="Filters"
-        label="Filter"
-        split
-        labelClass="btn-sm h-10 my-0 btn-outline-light"
-      >
-        <FilterMonthlyData onDataUpdate={setFilteredData} />
-      </CommonDropdown>
-    )
-  }
-  >
-            {isLoading ? (
-              <div className="space-y-4">
-                <SkeletonBox height="h-[300px]" />
-              </div>
-            ) : (
-              <>       
-                <BasicArea data={filteredData} height={320} />
-              </>
-            )}
-          </Card>
-        </div>
-
-        {/* Last 7 Days Bar Chart */}
-        <div className="col-span-12 lg:col-span-4 space-y-5">
-          <Card title="Last 7 Days">
-            {isLoading ? (
-              <SkeletonBox height="h-[300px]" />
-            ) : (
-              <BarChart />
-            )}
-          </Card>
-        </div>
+        <div className="col-span-12 space-y-5">{topCards}</div>
+        <div className="col-span-12 lg:col-span-8 space-y-5">{overviewChart}</div>
+        <div className="col-span-12 lg:col-span-4 space-y-5">{last7DaysChart}</div>
       </div>
     </div>
   );

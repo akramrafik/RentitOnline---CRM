@@ -19,8 +19,6 @@ const Fileinput = ({
         className="hidden"
         accept="image/*"
       />
-
-      {/* Circle Image Preview & Label */}
       <label
         htmlFor={id}
         className="cursor-pointer group  w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 bg-gray-100 relative flex items-center justify-center shadow-sm hover:border-primary-500 transition-colors"
@@ -37,7 +35,7 @@ const Fileinput = ({
             className="object-cover w-full h-full rounded-full"
           />
         ) : (
-          <FaUserCircle className="text-gray-400 text-8xl" />
+          <FaUserCircle className="text-gray-400 text-9xl" />
         )}
 
         {/* Pen Icon Overlay */}

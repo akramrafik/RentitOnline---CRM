@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useForm, Controller } from 'react-hook-form';
 import Skeleton from 'react-loading-skeleton';
@@ -33,6 +33,33 @@ const editorConfig = {
   pluginsEnabled: ['align', 'charCounter', 'link', 'image', 'lists'],
   branding: false
 };
+
+const TYPE_OPTIONS = [
+  { value: '1', label: 'Property' },
+  { value: '2', label: 'No Property' },
+  { value: '3', label: 'Residential' },
+  { value: '4', label: 'Commercial' },
+  { value: '5', label: 'Rooms/Bedspace' }
+];
+
+const CheckboxField = ({ name, label, control, error }) => (
+  <Controller
+    name={name}
+    control={control}
+    rules={{ required: `${label} is required` }}
+    render={({ field }) => (
+      <div className="flex flex-col">
+        <Checkbox
+          {...field}
+          checked={field.value}
+          onChange={e => field.onChange(e.target.checked)}
+          label={label}
+        />
+        {error && <p className="text-red-600 text-sm mt-1">{error.message}</p>}
+      </div>
+    )}
+  />
+);
 
 const CreateCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -87,13 +114,16 @@ const CreateCategory = () => {
     fetchParentCategories();
   }, []);
 
+  // Memoize categories options to avoid re-renders
+  const categoryOptions = useMemo(() => categories, [categories]);
+
   const onSubmit = async (data) => {
-     setIsSubmitting(true); 
+    setIsSubmitting(true);
     try {
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value != null) {
           formData.append(key, typeof value === 'boolean' ? (value ? '1' : '0') : value);
         }
       });
@@ -121,8 +151,8 @@ const CreateCategory = () => {
         console.error(error);
         toast.error('An unexpected error occurred');
       }
-    }finally{
-      setIsSubmitting(false); 
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -132,11 +162,11 @@ const CreateCategory = () => {
         <Card>
           <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-700 -mx-6 px-6 pb-4">
             <h2 className="text-2xl font-semibold text-slate-800 dark:text-slate-300">Create Category</h2>
-            <Button 
-            type="submit" 
-            text={isSubmitting ? "Submitting..." : "Save"} 
-            className="btn-dark" 
-            disabled={isSubmitting}
+            <Button
+              type="submit"
+              text={isSubmitting ? "Submitting..." : "Save"}
+              className="btn-dark"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -153,8 +183,7 @@ const CreateCategory = () => {
               className="mt-6"
             />
           </div>
-
-          {/* Row 1: Name, Type, Parent Category */}
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Textinput
               name="name"
@@ -173,26 +202,15 @@ const CreateCategory = () => {
                 render={({ field, fieldState }) => (
                   <ReactSelect
                     {...field}
-                    options={[
-                      { value: '1', label: 'Property' },
-                      { value: '2', label: 'No Property' },
-                      { value: '3', label: 'Residential' },
-                      { value: '4', label: 'Commercial' },
-                      { value: '5', label: 'Rooms/Bedspace' }
-                    ]}
+                    options={TYPE_OPTIONS}
                     onChange={option => field.onChange(option?.value)}
-                    value={[
-                      { value: '1', label: 'Property' },
-                      { value: '2', label: 'No Property' },
-                      { value: '3', label: 'Residential' },
-                      { value: '4', label: 'Commercial' },
-                      { value: '5', label: 'Rooms/Bedspace' }
-                    ].find(opt => opt.value === field.value) || null}
+                    value={TYPE_OPTIONS.find(opt => opt.value === field.value) || null}
                     placeholder="Select Type"
                     error={fieldState.error}
                   />
                 )}
               />
+              {/* {errors.type && <p className="text-red-600 text-sm mt-1">{errors.type.message}</p>} */}
             </div>
 
             <div className="flex flex-col">
@@ -205,14 +223,15 @@ const CreateCategory = () => {
                   <ReactSelect
                     loading={loadingCategories}
                     {...field}
-                    options={categories}
+                    options={categoryOptions}
                     onChange={(option) => field.onChange(option?.value)}
-                    value={categories.find(opt => opt.value === field.value) || null}
+                    value={categoryOptions.find(opt => opt.value === field.value) || null}
                     placeholder="Select Parent Category"
                     error={fieldState.error}
                   />
                 )}
               />
+              {/* {errors.parent_category && <p className="text-red-600 text-sm mt-1">{errors.parent_category.message}</p>} */}
             </div>
           </div>
 
@@ -244,78 +263,30 @@ const CreateCategory = () => {
           {/* Checkboxes */}
           <div className="w-full mt-6">
             <div className="flex flex-wrap gap-x-10 gap-y-4 w-full mb-7">
-              <div>
-                <Controller
-                  name="visible_in_home"
-                  control={control}
-                  rules={{ required: 'Visible in home is required' }}
-                  render={({ field }) => (
-                    <Checkbox
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      label="Show in home page"
-                    />
-                  )}
-                />
-                {errors.visible_in_home && (
-                  <p className="text-red-600 text-sm mt-1 w-full">{errors.visible_in_home.message}</p>
-                )}
-              </div>
-              <div>
-                <Controller
-                  name="company_only"
-                  control={control}
-                  rules={{ required: 'Company only is required' }}
-                  render={({ field }) => (
-                    <Checkbox
-                      {...field}
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      label="Company account required for posting ads"
-                    />
-                  )}
-                />
-                {errors.company_only && (
-                  <p className="text-red-600 text-sm mt-1 w-full">{errors.company_only.message}</p>
-                )}
-              </div>
-              <div>
-                <Controller
-                  name="rera_required"
-                  control={control}
-                  rules={{ required: 'Rera required is required' }}
-                  render={({ field }) => (
-                    <Checkbox
-                      {...field}
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      label="Rera fields"
-                    />
-                  )}
-                />
-                {errors.rera_required && (
-                  <p className="text-red-600 text-sm mt-1 w-full">{errors.rera_required.message}</p>
-                )}
-              </div>
-              <div>
-                <Controller
-                  name="dynamic_pricing"
-                  control={control}
-                  rules={{ required: 'Dynamic pricing is required' }}
-                  render={({ field }) => (
-                    <Checkbox
-                      {...field}
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      label="Dynamic Pricing"
-                    />
-                  )}
-                />
-                {errors.dynamic_pricing && (
-                  <p className="text-red-600 text-sm mt-1 w-full">{errors.dynamic_pricing.message}</p>
-                )}
-              </div>
+              <CheckboxField
+                name="visible_in_home"
+                label="Show in home page"
+                control={control}
+                error={errors.visible_in_home}
+              />
+              <CheckboxField
+                name="company_only"
+                label="Company account required for posting ads"
+                control={control}
+                error={errors.company_only}
+              />
+              <CheckboxField
+                name="rera_required"
+                label="Rera fields"
+                control={control}
+                error={errors.rera_required}
+              />
+              <CheckboxField
+                name="dynamic_pricing"
+                label="Dynamic Pricing"
+                control={control}
+                error={errors.dynamic_pricing}
+              />
             </div>
           </div>
 
@@ -331,7 +302,7 @@ const CreateCategory = () => {
                 placeholder=''
                 register={register}
                 error={errors.seo_title}
-                validation={{ required: 'seo title required' }}
+                validation={{ required: 'SEO title required' }}
               />
               <Textinput
                 name="seo_url"
@@ -339,7 +310,7 @@ const CreateCategory = () => {
                 placeholder=''
                 register={register}
                 error={errors.seo_url}
-                validation={{ required: 'seo url required' }}
+                validation={{ required: 'SEO URL required' }}
               />
               <Textinput
                 name="seo_keywords"
@@ -347,7 +318,7 @@ const CreateCategory = () => {
                 placeholder=''
                 register={register}
                 error={errors.seo_keywords}
-                validation={{ required: 'seo key words required' }}
+                validation={{ required: 'SEO keywords required' }}
               />
               <Textinput
                 name="seo_description"
@@ -355,7 +326,7 @@ const CreateCategory = () => {
                 placeholder=''
                 register={register}
                 error={errors.seo_description}
-                validation={{ required: 'seo description required' }}
+                validation={{ required: 'SEO description required' }}
               />
               <Textinput
                 name="footer_title"
@@ -411,18 +382,20 @@ const CreateCategory = () => {
             control={control}
             rules={{ required: 'The payment gateway field is required' }}
             render={({ field }) => (
-              <Checkbox
-                {...field}
-                checked={field.value}
-                onChange={(e) => field.onChange(e.target.checked)}
-                label="Enable Payment Gateway"
-                className="mt-6"
-              />
+              <>
+                <Checkbox
+                  {...field}
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  label="Enable Payment Gateway"
+                  className="mt-6"
+                />
+                {errors.payment_gateway && (
+                  <p className="text-red-600 text-sm mt-1">{errors.payment_gateway.message}</p>
+                )}
+              </>
             )}
           />
-          {errors.payment_gateway && (
-            <p className="text-red-600 text-sm mt-1">{errors.payment_gateway.message}</p>
-          )}
         </Card>
       </form>
 
