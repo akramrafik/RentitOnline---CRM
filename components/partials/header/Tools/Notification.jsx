@@ -21,6 +21,7 @@ const notifyLabel = () => {
 const Notification = () => {
   const [notifications,setNotifications] = useState([])
   const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   const colors = [
   "bg-[#4285F4]", // Blue
   "bg-[#DB4437]", // Red

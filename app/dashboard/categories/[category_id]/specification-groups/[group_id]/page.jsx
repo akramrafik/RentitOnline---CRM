@@ -11,19 +11,19 @@ import debounce from 'lodash.debounce';
 import { toast } from 'react-toastify';
 import Card from '@/components/ui/Card';
 import BaseTable from '@/components/partials/table/BaseTable';
-import { getSpecificationGroupById, deleteSpecificationGroup, changeSpecificationGroupStatus } from '@/lib/api';
+import { getAllSpecification, deleteSpecification, changeSpecificationStatus } from '@/lib/api';
 import Switch from '@/components/ui/Switch';
 import Tooltip from '@/components/ui/Tooltip';
 import { Icon } from '@iconify/react';
 import ConfirmDialog from '@/components/partials/ConfirmPopup';
-import CreateSpecGroup from './create_spec_group';
 import Modal from '@/components/ui/Modal';
-import EditSpecGroup from './edit_spec_group';
 import Button from '@/components/ui/Button';
+import EditSpec from './edit_spec';
+import CreateSpec from './create_spec';
 
 const SpecificationGroupsPage = () => {
   const [refreshKey, setRefreshKey] = useState(0);
-  const { category_id } = useParams();
+  const {category_id , group_id } = useParams();
   const router = useRouter();
 
   const [filter, setFilter] = useState('');
@@ -36,7 +36,6 @@ const SpecificationGroupsPage = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
-
 
   // Debounced filter setter
   const debouncedSetFilter = useMemo(
@@ -58,10 +57,11 @@ const SpecificationGroupsPage = () => {
     return () => debouncedSetFilter.cancel();
   }, [debouncedSetFilter]);
 
+  // Fetch specification data with optional filter
   const fetchSpecificationGroups = useCallback(
     async ({ pageIndex, q }) => {
       try {
-        const data = await getSpecificationGroupById(category_id);
+        const data = await getAllSpecification(group_id);
         const filteredData = q
           ? data.filter((item) =>
               item.name.toLowerCase().includes(q.toLowerCase())
@@ -73,51 +73,50 @@ const SpecificationGroupsPage = () => {
           meta: { last_page: 1 }
         };
       } catch (err) {
-        console.error('Failed to fetch specification groups', err);
+        console.error('Failed to fetch specification', err);
         return { data: [], meta: { last_page: 1 } };
       }
     },
-    [category_id]
+    [group_id]
   );
 
-  // Action handler
+  // Handle row actions: edit, delete, or navigate
   useEffect(() => {
     if (!selectedItem || !actionType) return;
 
     if (actionType === 'edit') {
       setEditModalOpen(true);
-    } else if (actionType === 'specification') {
-      router.push(`/dashboard/categories/${category_id}/specification-groups/${selectedItem.id}`);
+    } else if (actionType === 'values') {
+      router.push(`/dashboard/categories/${category_id}/specification-groups/${group_id}/specification-value/${selectedItem.id}`);
     } else if (actionType === 'delete') {
       setIsConfirmOpen(true);
     }
 
-    // Reset action state after navigation or modal open
     setActionType(null);
   }, [selectedItem, actionType, router]);
 
-  // Toggle switch status
+  // Status toggle cell
   const StatusCell = React.memo(({ row }) => {
     const [status, setStatus] = useState(Boolean(Number(row.original.status)));
     const [loading, setLoading] = useState(false);
 
     const handleToggle = async () => {
-  setLoading(true);
-  try {
-    const response = await changeSpecificationGroupStatus(category_id, row.original.id);
-    if (response.status) {
-      setStatus(Boolean(Number(response.data.status)));
-      toast.success('Status updated successfully');
-    } else {
-      toast.error('Failed to update status');
-    }
-  } catch (error) {
-    console.error('Error toggling status:', error);
-    toast.error('Error updating status');
-  } finally {
-    setLoading(false);
-  }
-};
+      setLoading(true);
+      try {
+        const response = await changeSpecificationStatus(group_id, row.original.id);
+        if (response.status) {
+          setStatus(Boolean(Number(response.data.status)));
+          toast.success('Status updated successfully');
+        } else {
+          toast.error('Failed to update status');
+        }
+      } catch (error) {
+        console.error('Error toggling status:', error);
+        toast.error('Error updating status');
+      } finally {
+        setLoading(false);
+      }
+    };
 
     return (
       <Switch
@@ -132,9 +131,25 @@ const SpecificationGroupsPage = () => {
     );
   });
 
+  // Table columns
   const columns = useMemo(() => [
     { Header: 'ID', accessor: 'id' },
     { Header: 'Name', accessor: 'name' },
+    {
+      Header: 'Spec Icon',
+      accessor: 'icon',
+      Cell: ({ value }) => (
+        value ? (
+          <img
+            src={value}
+            alt="icon"
+            className="w-8 h-8 object-contain rounded"
+          />
+        ) : (
+          <span className="text-gray-400">No Icon</span>
+        )
+      ),
+    },
     { Header: 'Status', accessor: 'status', Cell: StatusCell },
     {
       Header: 'Action',
@@ -159,25 +174,25 @@ const SpecificationGroupsPage = () => {
               </button>
             </Tooltip>
 
-            <Tooltip content="Specification">
-              <button className="action-btn" onClick={() => handleAction('specification')}>
-                <Icon icon="heroicons:document-text" />
+            <Tooltip content="Values">
+              <button className="action-btn" onClick={() => handleAction('values')}>
+                <Icon icon="heroicons:circle-stack" />
               </button>
             </Tooltip>
           </div>
         );
       }
     }
-  ], []);
+  ], [StatusCell]);
 
   return (
     <>
       <Card>
         <BaseTable
-          title="Specification Groups"
+          title="Specifications"
           columns={columns}
           apiCall={fetchSpecificationGroups}
-          params={{ category_id, refreshKey }}
+          params={{ group_id, refreshKey }}
           filter={filter}
           setFilter={handleFilterChange}
           pageIndex={pageIndex}
@@ -186,17 +201,18 @@ const SpecificationGroupsPage = () => {
           rowSelect={false}
           actionButton={
             <div className="space-xy-5 flex mr-1">
-            <Button
-  icon="heroicons-outline:plus"
-  text="Add New"
-  className="bg-primary-500 text-white btn-sm h-10 my-0"
-  onClick={() => setCreateModalOpen(true)}
-/>
-
-              </div>
+              <Button
+                icon="heroicons-outline:plus"
+                text="Add New"
+                className="bg-primary-500 text-white btn-sm h-10 my-0"
+                onClick={() => setCreateModalOpen(true)}
+              />
+            </div>
           }
         />
       </Card>
+
+      {/* Confirm Delete Dialog */}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => {
@@ -204,56 +220,57 @@ const SpecificationGroupsPage = () => {
           setSelectedItem(null);
         }}
         onConfirm={async () => {
-  try {
-    await deleteSpecificationGroup(category_id, selectedItem.id);
-    toast.success('Specification group deleted successfully');
-    setRefreshKey(prev => prev + 1); // trigger table refresh
-  } catch (err) {
-    toast.error('Failed to delete specification group');
-  } finally {
-    setIsConfirmOpen(false);
-    setSelectedItem(null);
-  }
-}}
+          try {
+            await deleteSpecification(group_id, selectedItem.id);
+            toast.success('Specification group deleted successfully');
+            setRefreshKey(prev => prev + 1);
+          } catch (err) {
+            toast.error('Failed to delete specification group');
+          } finally {
+            setIsConfirmOpen(false);
+            setSelectedItem(null);
+          }
+        }}
         title="Delete Specification Group"
         message={`Are you sure you want to delete "${selectedItem?.name}"?`}
       />
+
+      {/* Edit Specification Modal */}
       <Modal
-  title="Edit"
-  activeModal={editModalOpen}
-  footerContent={null}
-  onClose={() => {
-  setEditModalOpen(false);
-  setSelectedItem(null);
-}}
+        title="Edit Specification"
+        activeModal={editModalOpen}
+        footerContent={null}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedItem(null);
+        }}
+      >
+        <EditSpec
+          groupId={group_id}
+          specId={selectedItem?.id}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedItem(null);
+            setRefreshKey(prev => prev + 1);
+          }}
+        />
+      </Modal>
 
->
-  <EditSpecGroup
-    data={selectedItem}
-    categoryId={category_id}
-    onClose={() => {
-      setEditModalOpen(false);
-      setRefreshKey(prev => prev + 1);
-    }}
-  />
-</Modal>
-
-<Modal
-  title="Add Specification Group"
-  activeModal={createModalOpen}
-  footerContent={null}
-  onClose={() => setCreateModalOpen(false)}
->
-  <CreateSpecGroup
-    categoryId={category_id}
-    onClose={() => {
-      setCreateModalOpen(false);
-      setRefreshKey(prev => prev + 1); // Refresh the table
-    }}
-  />
-</Modal>
-
-
+      {/* Add Specification Modal */}
+      <Modal
+        title="Add Specification"
+        activeModal={createModalOpen}
+        footerContent={null}
+        onClose={() => setCreateModalOpen(false)}
+      >
+        <CreateSpec
+          groupId={group_id}
+          onClose={() => {
+            setCreateModalOpen(false);
+            setRefreshKey(prev => prev + 1);
+          }}
+        />
+      </Modal>
     </>
   );
 };

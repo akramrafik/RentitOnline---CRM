@@ -37,25 +37,27 @@ const Breadcrumbs = () => {
         </li>
 
         {/* Loop over crumbs but skip first segment "dashboard" because Home covers it */}
-        {crumbs.slice(1).map((crumb, idx) => {
-          const isLast = idx === crumbs.slice(1).length - 1;
-          return (
-            <li key={crumb.href} className={`capitalize ${isLast ? "text-slate-500 dark:text-slate-400" : "text-primary-500"}`}>
-              {!isLast ? (
-                <>
-                  <Link href={crumb.href} className="hover:underline">
-                    {crumb.label}
-                  </Link>
-                  <span className="breadcrumbs-icon rtl:transform rtl:rotate-180">
-                    <Icon icon="heroicons:chevron-right" />
-                  </span>
-                </>
-              ) : (
-                <span aria-current="page">{crumb.label}</span>
-              )}
-            </li>
-          );
-        })}
+        {crumbs.slice(1)
+  .filter((crumb) => isNaN(crumb.label)) // Skip numeric labels
+  .map((crumb, idx, arr) => {
+    const isLast = idx === arr.length - 1;
+    return (
+      <li key={crumb.href} className={`capitalize ${isLast ? "text-slate-500 dark:text-slate-400" : "text-primary-500"}`}>
+        {!isLast ? (
+          <>
+            <Link href={crumb.href} className="hover:underline">
+              {crumb.label}
+            </Link>
+            <span className="breadcrumbs-icon rtl:transform rtl:rotate-180">
+              <Icon icon="heroicons:chevron-right" />
+            </span>
+          </>
+        ) : (
+          <span aria-current="page">{crumb.label}</span>
+        )}
+      </li>
+    );
+  })}
       </ul>
     </nav>
   );

@@ -25,16 +25,34 @@ api.interceptors.request.use(
 
 
 let csrfTokenFetched = false;
+let csrfInProgress = false;
+let csrfCallCount = 0;
 
 export const csrf = async () => {
-  if (csrfTokenFetched) return;
+  csrfCallCount++;
+  console.log(`CSRF called ${csrfCallCount} time(s)`);
+  if (csrfTokenFetched || csrfInProgress) return;
+
+  csrfInProgress = true;
+  let timerStarted = false;
+
   try {
+    console.time("CSRF Time");
+    timerStarted = true;
+
     await api.get('/sanctum/csrf-cookie');
     csrfTokenFetched = true;
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
+  } finally {
+    if (timerStarted) {
+      console.timeEnd("CSRF Time");
+    }
+    csrfInProgress = false;
   }
 };
+
+
 
 
 export const login = async (email, password) => {
@@ -330,6 +348,160 @@ export const updateSpecificationGroup = async (category_id, group_id, payload) =
     throw error;
   }
 };
+
+// createSpecificationGroup
+export const createSpecificationGroup = async (category_id, payload) => {
+  try{
+ await csrf();
+  const response = await api.post(
+    `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/specification-groups/create`,
+    payload
+  );
+  return response.data;
+  }catch (error){
+    console.error("Error in create SpecificationGroup:", error);
+     throw error;
+  }
+};
+
+ // get specification by group id
+ export const getAllSpecification = async (group_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${group_id}/specifications`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch specificatios:", error);
+    throw error;
+  }
+};
+
+// show SpecificationGroup 
+export const showSingleSpec = async (group_id, spec_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${group_id}/specifications/${spec_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error getting SingleSpec:", error);
+    throw error;
+  }
+};
+
+// createSpecificationGroup
+export const createSpecification = async (group_id, payload) => {
+  try{
+ await csrf();
+  const response = await api.post(
+    `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${group_id}/specifications/create`,
+    payload
+  );
+  return response.data;
+  }catch (error){
+    console.error("Error in create specification:", error);
+     throw error;
+  }
+};
+//  status chnage SpecificationStatus 
+export const changeSpecificationStatus = async (group_id, spec_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${group_id}/specifications/toggle-status/${spec_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in changing status", error);
+    throw error;
+  }
+};
+//  delete Specification
+export const deleteSpecification = async (group_id, spec_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${group_id}/specifications/delete/${spec_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in changing status", error);
+    throw error;
+  }
+};
+ // get spec values
+ export const getAllSpecValues = async (spec_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/specifications/${spec_id}/values`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch specificatios:", error);
+    throw error;
+  }
+};
+// showsingleValue
+export const showSingleSpecificationValue = async (spec_id, value_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/specifications/${spec_id}/values/${value_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error getting single spec value:", error);
+    throw error;
+  }
+};
+
+// update  SpecificationGroup
+export const updateSpecificationValue = async (spec_id, valueId, payload) => {
+  try {
+    await csrf();
+    const response = await api.put(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/specifications/${spec_id}/values/update/${valueId}`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in creating values", error);
+    throw error;X
+  }
+};
+
+//  delete Specification
+export const deleteSpecificationValue = async (spec_id, valueId,) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/specifications/${spec_id}/values/delete/${valueId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting value", error);
+    throw error;
+  }
+};
+// createSpecificationGroup
+export const createSpecificationValue = async (spec_id, payload) => {
+  try{
+ await csrf();
+  const response = await api.post(
+    `${process.env.NEXT_PUBLIC_API_VERSION}/specifications/${spec_id}/values/create`,
+    payload
+  );
+  return response.data;
+  }catch (error){
+    console.error("Error in create specification:", error);
+     throw error;
+  }
+};
+
   // get plan 
   export const getPlan = async() => {
     try{
