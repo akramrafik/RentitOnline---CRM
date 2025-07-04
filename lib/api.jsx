@@ -502,6 +502,61 @@ export const createSpecificationValue = async (spec_id, payload) => {
   }
 };
 
+ // get specification according to catgeory id
+ export const getFaqsBycategoryId = async (category_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/faqs`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch specification groups:", error);
+    throw error;
+  }
+};
+ // get faq by id
+ export const getFaqsById = async (category_id, faq_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/faqs/${faq_id}`
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch specification groups:", error);
+    throw error;
+  }
+};
+ // update faq by id
+ export const updateFaqById = async (category_id, faq_id, payload) => {
+  try {
+    await csrf();
+    const response = await api.put(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/faqs/update/${faq_id}`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch specification groups:", error);
+    throw error;
+  }
+};
+ // update faq by id
+ export const createFaq = async (category_id, payload) => {
+  try {
+    await csrf();
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/categories/${category_id}/faqs/create`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch specification groups:", error);
+    throw error;
+  }
+};
+
   // get plan 
   export const getPlan = async() => {
     try{

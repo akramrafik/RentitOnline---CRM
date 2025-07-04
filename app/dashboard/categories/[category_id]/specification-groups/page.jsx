@@ -207,7 +207,7 @@ const SpecificationGroupsPage = () => {
   try {
     await deleteSpecificationGroup(category_id, selectedItem.id);
     toast.success('Specification group deleted successfully');
-    setRefreshKey(prev => prev + 1); // trigger table refresh
+    setRefreshKey(prev => prev + 1);
   } catch (err) {
     toast.error('Failed to delete specification group');
   } finally {
@@ -248,7 +248,7 @@ const SpecificationGroupsPage = () => {
     categoryId={category_id}
     onClose={() => {
       setCreateModalOpen(false);
-      setRefreshKey(prev => prev + 1); // Refresh the table
+      setRefreshKey(prev => prev + 1);
     }}
   />
 </Modal>

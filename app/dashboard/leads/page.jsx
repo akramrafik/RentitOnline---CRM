@@ -1,5 +1,11 @@
 'use client';
-import React, { useState, useMemo, useCallback, useTransition } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useTransition,
+  useEffect,
+} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LeadFilter from './filter';
 import { getLeads } from '@/lib/api';
@@ -12,57 +18,134 @@ import CommonDropdown from '@/components/ui/Common-dropdown';
 const LeadsPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+
+  const [initialized, setInitialized] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
+
   const [filter, setFilter] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSource, setSelectedSource] = useState('');
-  const [dates, setDates] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [removeDuplicate, setRemoveDuplicate] = useState(false);
 
-  // ✅ Format date for API params
+  // Format date for API params
   const formatDate = (date, time = '00:00') => {
     if (!date) return '';
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}+${encodeURIComponent(time)}`;
+    return `${yyyy}-${mm}-${dd} ${time}`;
   };
 
-  // ✅ Define table columns
-  const columns = useMemo(() => [
-    { Header: 'Id', accessor: 'id' },
-    { Header: 'Name', accessor: 'name' },
-    { Header: 'Email', accessor: 'email' },
-    { Header: 'Phone No.', accessor: 'phone' },
-    { Header: 'Source', accessor: 'source_type' },
-    { Header: 'Date.', accessor: 'date' },
-    { Header: 'Ad ID/Link', accessor: 'ad_id' },
-  ], []);
+  // Initialize filter states from URL params once
+  useEffect(() => {
+  if (!initialized) {
+    setFilter(searchParams.get('q') || '');
+    setSelectedCategory(searchParams.get('category') || '');
+    setSelectedSource(searchParams.get('source') || '');
 
-  const fetchLeads = useCallback(async ({ pageIndex }) => {
-    const params = {
-      q: filter,
-      page: pageIndex + 1,
-      source: selectedSource,
-      category: selectedCategory,
-      start_date: formatDate(dates[0], '00:00'),
-      end_date: formatDate(dates[1], '23:59'),
-    };
-    const response = await getLeads(params);
-    return response;
-  }, [filter, selectedSource, selectedCategory, dates]);
+    const start = searchParams.get('start_date');
+    const end = searchParams.get('end_date');
 
-  // ✅ Debounced search input
-  const debouncedSetFilter = useMemo(() =>
-    debounce((value) => {
+    if (start) setStartDate(new Date(start));
+    if (end) setEndDate(new Date(end));
+
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    setPageIndex(page > 0 ? page - 1 : 0);
+
+    // ✅ Add this
+    const removeDup = searchParams.get('remove_duplicate');
+    setRemoveDuplicate(removeDup === '1');
+
+    setInitialized(true);
+  }
+}, [initialized, searchParams]);
+
+
+  // Debounced filter input
+  const debouncedSetFilter = useMemo(() => {
+    const fn = debounce((value) => {
       startTransition(() => {
         setPageIndex(0);
         setFilter(value);
       });
-    }, 300), []);
+    }, 300);
+    return fn;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      debouncedSetFilter.cancel();
+    };
+  }, [debouncedSetFilter]);
+
+  // Fetch leads
+  const fetchLeads = useCallback(
+    async ({ pageIndex }) => {
+      const params = {
+        q: filter,
+        page: pageIndex + 1,
+        source: selectedSource,
+        category: selectedCategory,
+        start_date: formatDate(startDate, '00:00'),
+        end_date: formatDate(endDate, '23:59'),
+        remove_duplicate: removeDuplicate ? 1 : 0,
+      };
+      return await getLeads(params);
+    },
+    [filter, selectedSource, selectedCategory, startDate, endDate, removeDuplicate]
+  );
+
+ useEffect(() => {
+  if (!initialized) return;
+
+  const params = new URLSearchParams();
+
+  if (filter.trim()) params.set('q', filter);
+  if (selectedCategory) params.set('category', selectedCategory);
+  if (selectedSource) params.set('source', selectedSource);
+  if (startDate) params.set('start_date', formatDate(startDate, '00:00'));
+  if (endDate) params.set('end_date', formatDate(endDate, '23:59'));
+  if (removeDuplicate) params.set('remove_duplicate', '1');
+  if (pageIndex > 0) params.set('page', String(pageIndex + 1));
+
+  const queryString = params.toString();
+  const url = queryString ? `${pathname}?${queryString}` : pathname;
+
+  router.replace(url, { scroll: false });
+}, [
+  filter,
+  selectedCategory,
+  selectedSource,
+  startDate,
+  endDate,
+  pageIndex,
+  removeDuplicate,
+  router,
+  pathname,
+  initialized,
+]);
+
+
+
+  const columns = useMemo(
+    () => [
+      { Header: 'Id', accessor: 'id' },
+      { Header: 'Name', accessor: 'name' },
+      { Header: 'Email', accessor: 'email' },
+      { Header: 'Phone No.', accessor: 'phone' },
+      { Header: 'Source', accessor: 'source_type' },
+      { Header: 'Date', accessor: 'date' },
+      { Header: 'Ad ID/Link', accessor: 'ad_id' },
+    ],
+    []
+  );
 
   return (
-    <div className="p-1 sm:p-3 md:p-4 lg:p-5 space-y-4">
+    <div>
       <Card>
         <BaseTable
           columns={columns}
@@ -74,6 +157,7 @@ const LeadsPage = () => {
           setPageIndex={(index) => startTransition(() => setPageIndex(index))}
           setFilter={debouncedSetFilter}
           filter={filter}
+          rowSelect={false}
           actionButton={
             <div className="space-xy-5 flex">
               <Button
@@ -84,22 +168,26 @@ const LeadsPage = () => {
                   setFilter('');
                   setSelectedCategory('');
                   setSelectedSource('');
-                  setDates([]);
+                  setStartDate(null);
+                  setEndDate(null);
+                  setRemoveDuplicate(false);
                   setPageIndex(0);
                 }}
                 disabled={
                   !filter &&
                   !selectedCategory &&
                   !selectedSource &&
-                  dates.length === 0
+                  !startDate &&
+                  !endDate &&
+                  !removeDuplicate
                 }
               />
               <CommonDropdown
-               contentWrapperClass="rounded-lg filter-panel"
-                  header="Filters"
-  label="Filter"
-  split={true}
-  labelClass="btn-sm h-10 my-0 btn-outline-light"
+                contentWrapperClass="rounded-lg filter-panel"
+                header="Filters"
+                label="Filter"
+                split={true}
+                labelClass="btn-sm h-10 my-0 btn-outline-light"
               >
                 <LeadFilter
                   filter={filter}
@@ -108,8 +196,12 @@ const LeadsPage = () => {
                   setSelectedSource={setSelectedSource}
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
-                  dates={dates}
-                  setDates={setDates}
+                  startDate={startDate}
+                  setStartDate={setStartDate}
+                  endDate={endDate}
+                  setEndDate={setEndDate}
+                  removeDuplicate={removeDuplicate}
+                  setRemoveDuplicate={setRemoveDuplicate}
                 />
               </CommonDropdown>
             </div>

@@ -58,7 +58,6 @@ const StatusCell = React.memo(({ row }) => {
 const CategoriesPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const [filter, setFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [type, setType] = useState("");
@@ -69,8 +68,6 @@ const CategoriesPage = () => {
   const [actionType, setActionType] = useState(""); 
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
-
 
   // Initialize state from URL params
  useEffect(() => {
@@ -260,7 +257,7 @@ const handleDeleteConfirm = async () => {
           showGlobalFilter={true}
           rowSelect={false}
           actionButton={
-            <div className="space-xy-5 flex mr-2">
+            <div className="space-xy-5 flex">
               <Button
                 icon="heroicons-outline:refresh"
                 text="Clear filter"
