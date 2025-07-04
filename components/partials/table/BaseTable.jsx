@@ -171,7 +171,7 @@ const BaseTable = forwardRef(({
                       <th
                         key={key}
                         {...rest}
-                        className="table-th whitespace-nowrap"
+                       className={`table-th whitespace-nowrap ${column.sticky === "left" ? "sticky left-0 z-10 bg-slate-200 dark:bg-slate-700 shadow-dropdown" : "" }`}
                       >
                         {column.render('Header')}
                         <span className="ml-1">
@@ -196,7 +196,7 @@ const BaseTable = forwardRef(({
           >
             {loading ? (
               [...Array(pageSize)].map((_, i) => (
-                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} /> // ✅ dynamic colSpan
+                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} /> // dynamic colSpan
               ))
             ) : page.length > 0 ? (
               page.map((row) => {
@@ -210,7 +210,7 @@ const BaseTable = forwardRef(({
                         <td
                           key={key}
                           {...rest}
-                          className="table-td whitespace-nowrap"
+                          className={`table-td whitespace-nowrap ${ cell.column.sticky === "left" ? "sticky left-0 z-10 bg-white dark:bg-slate-800 shadow-dropdown" : ""}`}
                         >
                           {cell.render('Cell')}
                         </td>

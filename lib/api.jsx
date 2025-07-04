@@ -640,19 +640,84 @@ export const deletePackage = async (package_id) => {
     throw error;
   }
 }
-// get package details
 
 // get all banner types
-export const getAllBannerTypes = async () => {
+export const getAllBannerTypes = async (params={}) => {
   try{
     await csrf();
-    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/banner-types`);
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/banner-types?${query}`);
     return response.data;
   }catch(error){
     console.error('error getiing banner types', error)
     throw error;
   }
 }
+// get all banner by id
+export const getBannerId = async (banner_type_id) => {
+  try{
+    await csrf();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/banner-types/${banner_type_id}`);
+    return response.data;
+  }catch(error){
+    console.error('error getiing banner types', error)
+    throw error;
+  }
+}
+// banner type status change
+export const changeBannerStatus = async (id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/banner-types/toggle-status/${id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in changing status:", error);
+    throw error;
+  }
+};
+// banner type status change
+export const updateBannerType = async (id, data) => {
+  try {
+    await csrf();
+    const response = await api.put(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/banner-types/update/${id}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in updating banner:", error);
+    throw error;
+  }
+};
+// create banner
+export const createBannerType = async (data) => {
+  try {
+    await csrf();
+    const response = await api.post(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/banner-types/create`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in updating banner:", error);
+    throw error;
+  }
+};
+
+// delete banner
+export const deleteBannerType = async (id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/banner-types/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error in delete banner:", error);
+    throw error;
+  }
+};
 
 // get all blogs 
 export const getAllBlogs = async (params = {}) => {
@@ -1054,5 +1119,42 @@ export const changeWithdrawStatus = async (request_id, status) => {
   }
 };
 
-
+// reviews
+export const getAllReviews = async(params = {}) => {
+  try{
+    await csrf();
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`${process.env.NEXT_PUBLIC_API_VERSION}/reviews?${query}`)
+    return response.data;
+  }catch(error){
+    console.log("Error getting reviews:", error)
+    throw error;
+  }
+}
+// reviews status change
+export const changeReviewStatus = async (review_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/reviews/toggle-status/${review_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in changing status:", error);
+    throw error;
+  }
+};
+ // delete category status
+export const deleteReview = async (review_id) => {
+  try {
+    await csrf();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/reviews/delete/${review_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in deleting category:", error);
+    throw error;
+  }
+};
 export default api;

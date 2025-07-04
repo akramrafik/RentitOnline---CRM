@@ -155,7 +155,7 @@ export const menuItems = [
     icon: "heroicons-outline:users",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/reviews",
   },
   // {
   //   isHeadr: true,
