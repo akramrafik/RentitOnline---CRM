@@ -26,7 +26,6 @@ const SkeletonRow = ({ colSpan }) => (
   </tr>
 );
 
-//  forwardRef component
 const BaseTable = forwardRef(({
   title,
   columns,
@@ -42,7 +41,10 @@ const BaseTable = forwardRef(({
   actionButton,
   onSelectionChange,
   refreshKey,
-  rowSelect = true, 
+  rowSelect = true,
+  hideTitle = false,
+  hideGlobalFilter = false,
+  hidePagination = false,
 }, ref) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,13 +54,6 @@ const BaseTable = forwardRef(({
   const fetchData = async () => {
     try {
       setLoading(true);
-      // const queryParams = {
-      //   ...params,
-      //   pageIndex,
-      //   page: pageIndex + 1,
-      //   pageSize,
-      //   q: filter,
-      // };
       const response = await apiCall({ pageIndex, q: filter, ...params });
       setData(response.data || []);
       setTotalPages(response.meta?.last_page || 1);
@@ -77,7 +72,6 @@ const BaseTable = forwardRef(({
     fetchData();
   }, [filter, pageIndex, params, refreshKey]);
 
-  //  dynamically build plugins based on rowSelect
   const plugins = [
     useGlobalFilter,
     useSortBy,
@@ -95,7 +89,6 @@ const BaseTable = forwardRef(({
     },
     ...plugins,
     (hooks) => {
-      //  only inject selection column if rowSelect is enabled
       if (rowSelect) {
         hooks.visibleColumns.push((columns) => [
           {
@@ -124,7 +117,6 @@ const BaseTable = forwardRef(({
     toggleAllRowsSelected,
   } = tableInstance;
 
-  // only trigger popup if rowSelect is enabled
   useEffect(() => {
     if (rowSelect && Object.keys(selectedRowIds).length > 0) {
       setShowPopup(true);
@@ -136,31 +128,33 @@ const BaseTable = forwardRef(({
     toggleAllRowsSelected(false);
   };
 
-  // row select toolbar
   useEffect(() => {
-  if (rowSelect && onSelectionChange) {
-    const selectedData = selectedFlatRows.map((row) => row.original);
-    onSelectionChange(selectedData);
-  }
-}, [selectedRowIds, rowSelect]);
+    if (rowSelect && onSelectionChange) {
+      const selectedData = selectedFlatRows.map((row) => row.original);
+      onSelectionChange(selectedData);
+    }
+  }, [selectedRowIds, rowSelect]);
 
   return (
     <div className="">
-      <div className="md:flex justify-between items-center mb-5">
-        <h4 className="card-title">{title}</h4>
-        <div className='flex align-center'>
-          {actionButton}
-          {showGlobalFilter && (
-            <GlobalFilter filter={filter} setFilter={setFilter} />
-          )}
+      {/* ✅ Show header only if there is data */}
+      {data.length > 0 && !(hideTitle && hideGlobalFilter) && (
+        <div className="md:flex justify-between items-center mb-5">
+          {!hideTitle && <h4 className="card-title">{title}</h4>}
+          <div className="flex align-center">
+            {actionButton}
+            {!hideGlobalFilter && showGlobalFilter && (
+              <GlobalFilter filter={filter} setFilter={setFilter} />
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="overflow-x-auto w-full">
         <table className="min-w-[100%] divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
           <thead className="bg-slate-200 dark:bg-slate-700">
             {loading ? (
-              <SkeletonRow colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} /> // ✅ dynamic colSpan
+              <SkeletonRow colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} />
             ) : (
               headerGroups.map((headerGroup) => (
                 <tr key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
@@ -171,7 +165,7 @@ const BaseTable = forwardRef(({
                       <th
                         key={key}
                         {...rest}
-                       className={`table-th whitespace-nowrap ${column.sticky === "left" ? "sticky left-0 z-10 bg-slate-200 dark:bg-slate-700 shadow-dropdown" : "" }`}
+                        className={`table-th whitespace-nowrap ${column.sticky === "left" ? "sticky left-0 z-10 bg-slate-200 dark:bg-slate-700 shadow-dropdown" : ""}`}
                       >
                         {column.render('Header')}
                         <span className="ml-1">
@@ -196,7 +190,7 @@ const BaseTable = forwardRef(({
           >
             {loading ? (
               [...Array(pageSize)].map((_, i) => (
-                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} /> // dynamic colSpan
+                <SkeletonRow key={i} colSpan={columns.length + (renderRowActions ? 1 : 0) + (rowSelect ? 1 : 0)} />
               ))
             ) : page.length > 0 ? (
               page.map((row) => {
@@ -210,7 +204,7 @@ const BaseTable = forwardRef(({
                         <td
                           key={key}
                           {...rest}
-                          className={`table-td whitespace-nowrap ${ cell.column.sticky === "left" ? "sticky left-0 z-10 bg-white dark:bg-slate-800 shadow-dropdown" : ""}`}
+                          className={`table-td whitespace-nowrap ${cell.column.sticky === "left" ? "sticky left-0 z-10 bg-white dark:bg-slate-800 shadow-dropdown" : ""}`}
                         >
                           {cell.render('Cell')}
                         </td>
@@ -235,14 +229,17 @@ const BaseTable = forwardRef(({
         </table>
       </div>
 
-      <div className="flex justify-between items-center pt-2">
-        <div>Page {pageIndex + 1} of {totalPages}</div>
-        <TablePagination
-          currentPage={pageIndex}
-          totalPages={totalPages}
-          onPageChange={setPageIndex}
-        />
-      </div>
+      {/* ✅ Show pagination only if data exists */}
+      {data.length > 0 && !hidePagination && (
+        <div className="flex justify-between items-center pt-2">
+          <div>Page {pageIndex + 1} of {totalPages}</div>
+          <TablePagination
+            currentPage={pageIndex}
+            totalPages={totalPages}
+            onPageChange={setPageIndex}
+          />
+        </div>
+      )}
     </div>
   );
 });
@@ -263,6 +260,9 @@ BaseTable.propTypes = {
   onSelectionChange: PropTypes.func,
   refreshKey: PropTypes.any,
   rowSelect: PropTypes.bool,
+  hideTitle: PropTypes.bool,
+  hideGlobalFilter: PropTypes.bool,
+  hidePagination: PropTypes.bool,
 };
 
 export default BaseTable;

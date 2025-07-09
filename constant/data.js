@@ -226,7 +226,7 @@ export const menuItems = [
      icon: "heroicons-outline:link",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/dynamic-url",
   },
   {
     isHeadr: true,
@@ -248,21 +248,21 @@ export const menuItems = [
      icon: "heroicons-outline:megaphone",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/reports/ads",
   },
   {
     title: "Category",
      icon: "heroicons-outline:square-2-stack",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/reports/category",
   },
   {
     title: "Emirate",
      icon: "heroicons-outline:globe-asia-australia",
     isOpen: false,
     isHide: false,
-    link: "",
+    link: "/dashboard/reports/emirate",
   },
 ];
 

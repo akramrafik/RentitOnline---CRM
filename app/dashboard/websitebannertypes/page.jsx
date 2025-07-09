@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useRef
 } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Swicth from "@/components/ui/Switch";
 import { toast } from "react-toastify";
@@ -27,10 +27,10 @@ import Button from "@/components/ui/Button";
 import CreateBanner from "./create_banner";
 
 const GetBannerTypes = () => {
+  const {banner_type_id} = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const isInternalUpdate = useRef(false);
-
   const [hasInitialized, setHasInitialized] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -38,8 +38,7 @@ const GetBannerTypes = () => {
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  const [pageSize] = useState(10); // Default page size
-
+  const [pageSize] = useState(10); 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -114,9 +113,12 @@ const GetBannerTypes = () => {
     setDeleteTarget(null);
   };
 
-  const handlePackagesClick = (row) => {
-    // Add logic if needed
+  const handleBannersClick = (row) => {
+    const bannerTypeId  = row.original.id;
+    // alert(id)
+    router.push(`/dashboard/websitebannertypes/${bannerTypeId}`)
   };
+
 
   const handleSuccess = () => {
     setEditModalOpen(false);
@@ -187,12 +189,12 @@ const GetBannerTypes = () => {
                 <Icon icon="heroicons:trash" />
               </button>
             </Tooltip>
-            <Tooltip content="Packages" placement="top">
+            <Tooltip content="Banners" placement="top">
               <button
                 className="action-btn"
-                onClick={() => handlePackagesClick(row)}
+                onClick={() => handleBannersClick(row)}
               >
-                <Icon icon="heroicons:circle-stack" />
+                <Icon icon="heroicons:bookmark-square" />
               </button>
             </Tooltip>
           </div>

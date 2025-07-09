@@ -8,6 +8,8 @@ import BasicArea from "@/components/partials/chart/appex-chart/BasicArea";
 import BarChart from "@/components/partials/chart/chartjs/Bar";
 import { getDashboardData } from "@/lib/api";
 import CommonDropdown from "@/components/ui/Common-dropdown";
+import MenuSectionsDisplay from "@/components/partials/GroupMenu";
+import { menuItems } from "@/constant/data";
 
 // Reusable Skeleton Block
 const SkeletonBox = ({ height = "h-24", className = "" }) => (
@@ -73,7 +75,7 @@ const CrmPage = () => {
       {isLoading ? <SkeletonBox height="h-[300px]" /> : <BarChart />}
     </Card>
   ), [isLoading]);
-
+ 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-12 gap-5">
@@ -81,6 +83,7 @@ const CrmPage = () => {
         <div className="col-span-12 lg:col-span-8 space-y-5">{overviewChart}</div>
         <div className="col-span-12 lg:col-span-4 space-y-5">{last7DaysChart}</div>
       </div>
+       <MenuSectionsDisplay menuItems={menuItems}/>
     </div>
   );
 };

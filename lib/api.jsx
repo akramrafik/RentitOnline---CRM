@@ -718,6 +718,19 @@ export const deleteBannerType = async (id) => {
     throw error;
   }
 };
+// Get banners by banner type ID
+export const getBannersById = async (banner_type_id) => {
+  try {
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/banners/${banner_type_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error getting banners:', error);
+    throw error;
+  }
+};
+
 
 // get all blogs 
 export const getAllBlogs = async (params = {}) => {
@@ -1157,4 +1170,80 @@ export const deleteReview = async (review_id) => {
     throw error;
   }
 };
+// get report ads
+export const getAdReports = async (params = {}) => {
+  try {
+    await csrf();
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/reports/ads?${query}`
+    );
+    const { data, meta } = response.data.reports || {};
+    const columns = response.data.columns || [];
+    return {
+      data: data ?? [],
+      meta: meta ?? { last_page: 1 },
+      columns
+    };
+
+  } catch (error) {
+    throw error;
+  }
+};
+// get report category
+export const getCategoryReports = async (params = {}) => {
+  try {
+    await csrf();
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/reports/category?${query}`
+    );
+    const { data, meta } = response.data.reports || {};
+    const columns = response.data.columns || [];
+    return {
+      data: data ?? [],
+      meta: meta ?? { last_page: 1 },
+      columns
+    };
+
+  } catch (error) {
+    throw error;
+  }
+};
+// get report emirtae
+export const getEmirateReports = async (params = {}) => {
+  try {
+    await csrf();
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(
+      `${process.env.NEXT_PUBLIC_API_VERSION}/reports/emirate?${query}`
+    );
+    const { data, meta } = response.data.reports || {};
+    const columns = response.data.columns || [];
+    return {
+      data: data ?? [],
+      meta: meta ?? { last_page: 1 },
+      columns
+    };
+
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get dynamic url
+  export const getDynamicUrl = async() => {
+    try{
+      await csrf();
+      const response = await api.get(
+        `${process.env.NEXT_PUBLIC_API_VERSION}/dynamic-urls`,
+      );
+      console.log('response from dynamic url', response.data);
+      return response.data;
+    }catch(error){
+      console.error('error fetching dynamic url', error);
+      throw error;
+    }
+  };
+
 export default api;
